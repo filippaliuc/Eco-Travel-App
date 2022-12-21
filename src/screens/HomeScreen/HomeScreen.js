@@ -23,11 +23,8 @@ const HomeScreen = () => {
                 return;
             }
 
-            let location = await Location.getCurrentPositionAsync({});
+            let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
             setLocation(location);
-
-            console.log(location.coords.latitude);
-            console.log(location.coords.longitude);
         })();
     }, []);
 
