@@ -1,15 +1,48 @@
-import { StyleSheet, Text, View, TextInput, KeyboardAvoidingView, Alert, DeviceEventEmitter } from 'react-native'
+import {
+    StyleSheet,
+    Text,
+    View,
+    TextInput,
+    KeyboardAvoidingView,
+    Alert,
+    DeviceEventEmitter,
+    ToastAndroid
+} from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import Map from "../../components/Map"
 import CustomInput from './CustomInput'
 import CustomButton from './CustomButton'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
+import * as Location from 'expo-location';
 
 const HomeScreen = () => {
   
-  const [showStart, setShowStart] = useState(false);
+    const [showStart, setShowStart] = useState(false);
 
-  const showOrigin = () => {
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
+
+
+    useEffect(() => {
+        (async () => {
+
+            try {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    setErrorMsg('Permission to access location was denied');
+                    return;
+                }
+
+                let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
+                setLocation(location);
+            }
+            catch (error) {
+                ToastAndroid.show(error, ToastAndroid.SHORT);
+            }
+        })();
+    }, []);
+
+    const showOrigin = () => {
     if(showStart) {
       return (
         <View>
@@ -17,9 +50,9 @@ const HomeScreen = () => {
         </View>
       )
     }
-  } 
+    }
 
-  return (
+    return (
     <View style={styles.container}>
       {/* <View style={styles.navbar}>
           <Ionicons name='md-arrow-back-outline' onPress={handleBackButton} style={styles.arrow} size={32} ></Ionicons>
@@ -31,10 +64,10 @@ const HomeScreen = () => {
         <CustomInput text="Destinatie" placeholder="Destination" set="Destination"></CustomInput>
         <CustomButton text="Cauta" onPress={() => setShowStart(true)}></CustomButton>
       </View>
-      <Map styles={styles.map} />
+        <Map styles={styles.map} currentLocation={location}/>
       < NavigationBar></NavigationBar>
     </View>
-  )
+    )
   
 }
 
