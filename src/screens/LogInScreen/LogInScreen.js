@@ -1,10 +1,11 @@
-import { View, Text, Image, KeyboardAvoidingView, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, Image, KeyboardAvoidingView, StyleSheet, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Logo from '../../../assets/bus_logo.png'
 import CustomInput from "./CustomInput";
 import CustomButton from "./CustomButton";
 import { auth } from "../../../firebase"
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
+import { useNavigation } from '@react-navigation/native';
 
 
 const LogInScreen = () => {
@@ -12,11 +13,14 @@ const LogInScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   
+  const navigation = useNavigation();
+
   const handleRegister = () => {
     createUserWithEmailAndPassword(auth, username, password)
     .then((userCredential) => {
       // Signed in 
       const user = userCredential.user;
+      navigation.navigate("HomeScreen")
       console.log("Registered")
       // ...
     })
@@ -32,12 +36,13 @@ const LogInScreen = () => {
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        console.log("Signed");
+        navigation.navigate("HomeScreen")
         // ...
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        Alert.alert(error.message)
       });
   }
 
