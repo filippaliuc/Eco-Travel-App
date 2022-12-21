@@ -4,12 +4,34 @@ import Map from "../../components/Map"
 import CustomInput from './CustomInput'
 import CustomButton from './CustomButton'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
+import * as Location from 'expo-location';
 
 const HomeScreen = () => {
   
-  const [showStart, setShowStart] = useState(false);
+    const [showStart, setShowStart] = useState(false);
 
-  const showOrigin = () => {
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
+
+
+    useEffect(() => {
+        (async () => {
+
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+
+            console.log(location.coords.latitude);
+            console.log(location.coords.longitude);
+        })();
+    }, []);
+
+    const showOrigin = () => {
     if(showStart) {
       return (
         <View>
@@ -17,9 +39,9 @@ const HomeScreen = () => {
         </View>
       )
     }
-  } 
+    }
 
-  return (
+    return (
     <View style={styles.container}>
       {/* <View style={styles.navbar}>
           <Ionicons name='md-arrow-back-outline' onPress={handleBackButton} style={styles.arrow} size={32} ></Ionicons>
@@ -31,10 +53,10 @@ const HomeScreen = () => {
         <CustomInput text="Destinatie" placeholder="Destination" set="Destination"></CustomInput>
         <CustomButton text="Cauta" onPress={() => setShowStart(true)}></CustomButton>
       </View>
-      <Map styles={styles.map} />
+        <Map styles={styles.map} currentLocation={location}/>
       < NavigationBar></NavigationBar>
     </View>
-  )
+    )
   
 }
 
