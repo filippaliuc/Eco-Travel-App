@@ -15,22 +15,6 @@ const LogInScreen = () => {
   
   const navigation = useNavigation();
 
-  const handleRegister = () => {
-    createUserWithEmailAndPassword(auth, username, password)
-    .then((userCredential) => {
-      // Signed in 
-      const user = userCredential.user;
-      navigation.navigate("HomeScreen")
-      console.log("Registered")
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // ..
-    });
-  }
-
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, username, password)
       .then((userCredential) => {
@@ -59,7 +43,7 @@ const LogInScreen = () => {
       <CustomButton text="Log In" onPress={handleSignIn} />
       <Text style={{ color: 'white', marginTop: 25, marginBottom: 15}}>__________________    OR    __________________</Text>
       <Text style={{ color: 'white', marginBottom: 15 }}>No account yet? Make one now.</Text>
-      <CustomButton text="Create Account" onPress={handleRegister} type="Register" />
+      <CustomButton text="Create Account" onPress={() => navigation.navigate("RegisterScreen")} type="Register" />
     </KeyboardAvoidingView>
   )
 }

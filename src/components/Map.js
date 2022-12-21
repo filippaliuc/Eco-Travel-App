@@ -6,8 +6,8 @@ import { selectDestination, selectOrigin } from './navSlice'
 
 const Map = () => {
 
-  const origin = useSelector(selectOrigin);
-  const destination = useSelector(selectDestination)
+  // const origin = useSelector(selectOrigin);
+  // const destination = useSelector(selectDestination)
 
   return (
     <MapView
@@ -21,7 +21,6 @@ const Map = () => {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
     }}
-      onPress={[console.log(destination), console.log(origin)]}
   />
   )
 }

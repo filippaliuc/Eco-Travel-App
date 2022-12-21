@@ -26,14 +26,13 @@ export default function App() {
           }}
         >
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
           <Stack.Screen name="LogInScreen" component={LogInScreen} />
           <Stack.Screen name="AccountDetailsScreen" component={AccountDetailsScreen} />
           <Stack.Screen name="BusPassScreen" component={BusPassScreen} />
           <Stack.Screen name="TicketScreen" component={TicketScreen} />
           <Stack.Screen name="LinesScreen" component={LinesScreen} />
         </Stack.Navigator>
-        < NavigationBar></NavigationBar>
       </NavigationContainer>
     </Provider>
   );
