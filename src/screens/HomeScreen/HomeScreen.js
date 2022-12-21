@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Map from "../../components/Map"
 import CustomInput from './CustomInput'
 import CustomButton from './CustomButton'
+import NavigationBar from '../../components/NavigationBar/NavigationBar';
 
 const HomeScreen = () => {
   
@@ -31,6 +32,7 @@ const HomeScreen = () => {
         <CustomButton text="Cauta" onPress={() => setShowStart(true)}></CustomButton>
       </View>
       <Map styles={styles.map} />
+      < NavigationBar></NavigationBar>
     </View>
   )
   
