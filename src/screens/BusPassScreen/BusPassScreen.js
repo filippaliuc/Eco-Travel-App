@@ -6,6 +6,7 @@ const BusPassScreen = () => {
   return (
     <View style={styles.container}>
       <Text>BusPassScreen</Text>
+      < NavigationBar></NavigationBar>
     </View>
   )
 }

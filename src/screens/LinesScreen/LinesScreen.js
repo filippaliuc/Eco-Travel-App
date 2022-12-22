@@ -7,6 +7,7 @@ const LinesScreen = () => {
   return (
     <View style={styles.container}> 
       <Text>LinesScreen</Text>
+      < NavigationBar></NavigationBar>
     </View>
   )
 }

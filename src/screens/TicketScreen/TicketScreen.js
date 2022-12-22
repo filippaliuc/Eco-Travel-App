@@ -6,6 +6,7 @@ const TicketScreen = () => {
   return (
     <View style={styles.container}>
       <Text>TicketScreen</Text>
+      < NavigationBar></NavigationBar>
     </View>
   )
 }

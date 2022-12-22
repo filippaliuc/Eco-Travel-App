@@ -165,5 +165,3 @@ docs/pages/versions/*/react-native/*.diff
 
 # # macOS
 # .DS_Store
-
-.env
