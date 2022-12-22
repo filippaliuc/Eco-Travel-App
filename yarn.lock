@@ -4974,7 +4974,7 @@ expo-modules-core@1.0.2:
   dependencies:
     compare-versions "^3.4.0"
     invariant "^2.2.4"
-
+    
 expo-pwa@0.0.124:
   version "0.0.124"
   resolved "https://registry.npmjs.org/expo-pwa/-/expo-pwa-0.0.124.tgz"
