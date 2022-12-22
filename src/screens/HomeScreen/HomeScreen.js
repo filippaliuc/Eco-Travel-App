@@ -1,13 +1,4 @@
-import {
-    StyleSheet,
-    Text,
-    View,
-    TextInput,
-    KeyboardAvoidingView,
-    Alert,
-    DeviceEventEmitter,
-    ToastAndroid
-} from 'react-native'
+import { StyleSheet, Text, View, TextInput, KeyboardAvoidingView, Alert, DeviceEventEmitter } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import Map from "../../components/Map"
 import CustomInput from './CustomInput'
@@ -25,20 +16,14 @@ const HomeScreen = () => {
 
     useEffect(() => {
         (async () => {
-
-            try {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    setErrorMsg('Permission to access location was denied');
-                    return;
-                }
-
-                let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
-                setLocation(location);
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
             }
-            catch (error) {
-                ToastAndroid.show(error, ToastAndroid.SHORT);
-            }
+
+            let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
+            setLocation(location);
         })();
     }, []);
 
