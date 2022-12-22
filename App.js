@@ -12,6 +12,7 @@ import LinesScreen from './src/screens/LinesScreen/LinesScreen';
 import NavigationBar from './src/components/NavigationBar/NavigationBar';
 import { Provider } from "react-redux";
 import { store } from './store';
+import DriverScreen from "./src/screens/DriverScreen/DriverScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -27,8 +28,8 @@ export default function App() {
         >
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
           <Stack.Screen name="LogInScreen" component={LogInScreen} />
-
           <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+          <Stack.Screen name="DriverScreen" component={DriverScreen} />
           <Stack.Screen name="AccountDetailsScreen" component={AccountDetailsScreen} />
           <Stack.Screen name="BusPassScreen" component={BusPassScreen} />
           <Stack.Screen name="TicketScreen" component={TicketScreen} />
