@@ -39,11 +39,6 @@ const HomeScreen = () => {
 
     return (
     <View style={styles.container}>
-      {/* <View style={styles.navbar}>
-          <Ionicons name='md-arrow-back-outline' onPress={handleBackButton} style={styles.arrow} size={32} ></Ionicons>
-          <Ionicons name='notifications-outline' style={styles.icons} size={32} ></Ionicons>
-          <Ionicons name='settings-outline' size={32} ></Ionicons>
-      </View> */}
       <View style={{padding: 15, flex: 0}}>
         {showOrigin()}
         <CustomInput text="Destinatie" placeholder="Destination" set="Destination"></CustomInput>

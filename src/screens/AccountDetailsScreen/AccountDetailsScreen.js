@@ -16,6 +16,12 @@ const AccountDetailsScreen = () => {
       >
         <Text style={{fontSize: 30}}>LogOut</Text>
       </TouchableOpacity>
+      <TouchableOpacity 
+        style={{backgroundColor: "yellow"}}
+        onPress={() => navigation.navigate("DriverScreen")}  
+      >
+        <Text style={{fontSize: 30}}>DriverScreen</Text>
+      </TouchableOpacity>
       < NavigationBar></NavigationBar>
     </View>
   )
