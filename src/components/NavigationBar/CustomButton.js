@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
 
     HartaIcon:{
         color: '#35AE0A',
-        borderRadius: 10,
     },
 
     LiniiIcon:{
