@@ -11,8 +11,6 @@ const Map = ({currentLocation}) => {
     const origin = useSelector(selectOrigin);
     const destination = useSelector(selectDestination);
     const mapRef = useRef(null);
-
-    const directionsService = new google.maps.DirectionsService();
     
     const mapViewDirectionRef = useRef(null);
 
