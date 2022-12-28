@@ -2,7 +2,7 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native'
 import React, {useEffect, useRef, useState} from 'react'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import { useSelector } from 'react-redux'
-import { selectDestination, selectOrigin } from './navSlice'
+import { selectDestination, selectOrigin, setOrigin } from './navSlice'
 import MapViewDirection from "react-native-maps-directions"
 import { GOOGLE_API_KEY } from '@env'
 
@@ -12,10 +12,9 @@ const Map = ({currentLocation}) => {
     const destination = useSelector(selectDestination);
     const mapRef = useRef(null);
 
-    const defaultLocation = {
-        lat: 45.7538355,
-        lng: 21.2257474
-    };
+    const directionsService = new google.maps.DirectionsService();
+    
+    const mapViewDirectionRef = useRef(null);
 
     const [lat, setLat] = useState(43);
     const [lng, setLng] = useState(42);
@@ -23,7 +22,7 @@ const Map = ({currentLocation}) => {
     useEffect(() => {
         // console.log(currentLocation);
         // console.log(destination)
-        if(destination == null) {
+        if(!destination) {
             setLat(currentLocation?.coords.latitude);
             setLng(currentLocation?.coords.longitude);
         } 
@@ -33,15 +32,6 @@ const Map = ({currentLocation}) => {
         setLat(destination?.location.lat);
         setLng(destination?.location.lng);
     }, [destination]);
-    
-    useEffect(() => {
-      if( !origin || !destination) return;
-
-      mapRef.current.fitToSuppliedMarkers(["destination","origin"], {
-        edgePadding: {top: 50, right: 50, left: 50, bottom: 50}
-      });
-    }, [origin,destination])
-    
 
     if(currentLocation != null) {
         return (
@@ -49,6 +39,7 @@ const Map = ({currentLocation}) => {
                 ref={mapRef}
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
+                showsUserLocation={true}
                 region={
                         {
                             latitude: lat,
@@ -62,9 +53,16 @@ const Map = ({currentLocation}) => {
                     <MapViewDirection 
                         origin={origin.description}
                         destination={destination.description}
+                        mode="TRANSIT"
                         apikey={GOOGLE_API_KEY}
-                        strokeWidth={3}
+                        strokeWidth={5}
                         strokeColor="green"
+                        onReady={results => {
+                            console.log(results.legs)
+                            mapRef?.current.fitToSuppliedMarkers(["destination","origin"], {
+                                edgePadding: {top: 50, right: 50, left: 50, bottom: 50}
+                              });
+                        }}
                     />
                 )}
                 {destination?.location && (

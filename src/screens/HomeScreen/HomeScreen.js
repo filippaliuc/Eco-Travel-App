@@ -1,8 +1,7 @@
-import { StyleSheet, Text, View, TextInput, KeyboardAvoidingView, Alert, DeviceEventEmitter } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Map from "../../components/Map"
 import CustomInput from './CustomInput'
-import CustomButton from './CustomButton'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import * as Location from 'expo-location';
 import { selectDestination } from '../../components/navSlice'
@@ -22,9 +21,9 @@ const HomeScreen = () => {
               setErrorMsg('Permission to access location was denied');
               return;
           }
-
           let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
           setLocation(location);
+          // console.log(location)
       })();
   }, []);
 
