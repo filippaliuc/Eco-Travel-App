@@ -9,6 +9,8 @@ import AccountDetailsScreen from './src/screens/AccountDetailsScreen/AccountDeta
 import BusPassScreen from './src/screens/BusPassScreen/BusPassScreen';
 import TicketScreen from './src/screens/TicketScreen/TicketScreen';
 import LinesScreen from './src/screens/LinesScreen/LinesScreen';
+import ConfirmStandardPassScreen from './src/screens/BusPassScreen/ConfirmStandardPassScreen';
+import ConfirmStudentPassScreen from './src/screens/BusPassScreen/ConfirmStudentPassScreen';
 import NavigationBar from './src/components/NavigationBar/NavigationBar';
 import { Provider } from "react-redux";
 import { store } from './store';
@@ -32,6 +34,8 @@ export default function App() {
           <Stack.Screen name="DriverScreen" component={DriverScreen} />
           <Stack.Screen name="AccountDetailsScreen" component={AccountDetailsScreen} />
           <Stack.Screen name="BusPassScreen" component={BusPassScreen} />
+          <Stack.Screen name="ConfirmStudentPassScreen" component={ConfirmStudentPassScreen} />
+          <Stack.Screen name="ConfirmStandardPassScreen" component={ConfirmStandardPassScreen} />
           <Stack.Screen name="TicketScreen" component={TicketScreen} />
           <Stack.Screen name="LinesScreen" component={LinesScreen} />
         </Stack.Navigator>
