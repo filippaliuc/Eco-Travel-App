@@ -24,7 +24,7 @@ export const data = [
         key: '4'
     },
     {
-        name: "student", 
+        name: "reduceri/gratuitati", 
         details: "",
         price: '0', 
         key: '5'

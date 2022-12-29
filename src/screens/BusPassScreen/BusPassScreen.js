@@ -44,7 +44,7 @@ const BusPassScreen = () => {
   };
 
   const handleConfirm = () => {
-    return data[selectedId-1].name === 'student' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
+    return data[selectedId-1].name === 'reduceri/gratuitati' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
   }
 
   function showItemNotSelectedToast () {
@@ -63,7 +63,7 @@ const BusPassScreen = () => {
           extraData={selectedId}
           contentContainerStyle={styles.buttonsContainer}
         />
-        {selectedId && (
+        {selectedId &&  data[selectedId-1].price != '0' && (
           <Text style={styles.price}>{data[selectedId-1].price} lei</Text>
         )}
         {selectedId && <TouchableOpacity style={styles.chooseButton} onPress={() => handleConfirm()}>
@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
   },
 
   buttonsContainer: {
-    // flex: 1,
     alignItems: "center",
   },
 
@@ -109,8 +108,8 @@ const styles = StyleSheet.create({
     paddingVertical:'5%',
     alignItems: "center",
     borderRadius: 20,
-    marginBottom: 40,
-    marginTop: 5,
+    marginBottom: 30,
+    marginTop: 15,
     elevation: 4,
     shadowOpacity: 0.2
   },
