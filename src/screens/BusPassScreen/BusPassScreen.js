@@ -2,14 +2,9 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native
 import React, { useState } from 'react'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import { useNavigation } from '@react-navigation/core';
-
-const data = [ 
-  {name: "1 linie - 30 de zile", price: '100',  key: '1'},
-  {name: "1 linie expres - 30 de zile", price: '115', key: '2'},
-  {name: "general - 30 de zile", price: '130', key: '3'},
-  {name: "general anual", price: '1100', key: '4'},
-  {name: "student", price: '0', key: '5'},
-]   
+import { data } from '../../models/busPassData';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import Toast from 'react-native-root-toast';
 
 const Item = ({item, onPress, borderColor, textColor, elevation, borderWidth, shadowOpacity}) => (
   <TouchableOpacity 
@@ -49,26 +44,42 @@ const BusPassScreen = () => {
   };
 
   const handleConfirm = () => {
-    return data[selectedId-1].name === 'student' ? navigation.navigate("ConfirmStudentPassScreen") : navigation.navigate("ConfirmStandardPassScreen") 
+    return data[selectedId-1].name === 'student' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
+  }
+
+  function showItemNotSelectedToast () {
+    Toast.show('Nu ati ales niciun abonament', {
+      duration: Toast.durations.SHORT,
+    });
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.key}
-        extraData={selectedId}
-        contentContainerStyle={styles.buttonsContainer}
-      />
-      {selectedId && (
-        <Text style={styles.price}>{data[selectedId-1].price} lei</Text>
-      )}
-      <TouchableOpacity style={styles.chooseButton} onPress={() => handleConfirm()}>
-        <Text style={styles.chooseText}>Confirma</Text>
-      </TouchableOpacity>
-      < NavigationBar></NavigationBar>
-    </View>
+    <RootSiblingParent>
+      <View style={styles.container}>
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.key}
+          extraData={selectedId}
+          contentContainerStyle={styles.buttonsContainer}
+        />
+        {selectedId && (
+          <Text style={styles.price}>{data[selectedId-1].price} lei</Text>
+        )}
+        {selectedId && <TouchableOpacity style={styles.chooseButton} onPress={() => handleConfirm()}>
+          <Text style={styles.chooseText}>Confirma</Text>
+        </TouchableOpacity> 
+        || !selectedId && 
+          <TouchableOpacity 
+            style={[styles.chooseButton,{backgroundColor: "#DDD8D8"}]} 
+            activeOpacity={0.8}
+            onPress={() => showItemNotSelectedToast()}
+          >
+            <Text style={[styles.chooseText, {color:"black"}]} >Confirma</Text>
+          </TouchableOpacity> }
+        < NavigationBar></NavigationBar>
+      </View>
+    </RootSiblingParent>
   )
 }
 
