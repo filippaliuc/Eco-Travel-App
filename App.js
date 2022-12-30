@@ -15,8 +15,24 @@ import NavigationBar from './src/components/NavigationBar/NavigationBar';
 import { Provider } from "react-redux";
 import { store } from './store';
 import DriverScreen from "./src/screens/DriverScreen/DriverScreen";
+import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
+
 
 const Stack = createNativeStackNavigator();
+
+const auth = getAuth();
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    console.log(user.email,"user is logged in")
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
 
 export default function App() {
   return (
