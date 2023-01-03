@@ -16,7 +16,7 @@ const HomeScreen = () => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const userId = auth.currentUser.uid
+  const userId = auth.currentUser?.uid
 
   const read = () => {
     const star = ref(database, 'users/');
@@ -37,7 +37,7 @@ const HomeScreen = () => {
           let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
           setLocation(location);
           // console.log(location)
-          // console.log(userId)
+          console.log(userId)
       })();
   }, []);
 

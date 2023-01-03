@@ -2,17 +2,26 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import { useNavigation } from '@react-navigation/native';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../../firebase';
 
 const AccountDetailsScreen = () => {
 
   const navigation = useNavigation();
+  const handleLogOut = () => {
+    signOut(auth).then(() =>{
+      navigation.navigate("LogInScreen")
+      console.log("signed out")
+    }).catch((error) => {
+    });
+  }
 
   return (
     <View style={styles.container}>
       <Text>AccountDetailsScreen</Text>
       <TouchableOpacity 
         style={{backgroundColor: "green"}}
-        onPress={() => navigation.navigate("LogInScreen")}  
+        onPress={() => handleLogOut()}  
       >
         <Text style={{fontSize: 30}}>LogOut</Text>
       </TouchableOpacity>

@@ -33,6 +33,8 @@ const LogInScreen = () => {
       });
   }
 
+  // console.log(auth.currentUser.uid)
+
   return (
     <KeyboardAvoidingView style={styles.root}>
       <Image
