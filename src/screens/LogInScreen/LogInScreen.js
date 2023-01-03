@@ -3,18 +3,21 @@ import React, { useEffect, useState } from 'react'
 import Logo from '../../../assets/bus_logo.png'
 import CustomInput from "./CustomInput";
 import CustomButton from "./CustomButton";
-import { auth } from "../../../firebase"
+import { auth, database } from "../../../firebase"
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
 import { useNavigation } from '@react-navigation/native';
+import { ref, onValue, update } from '@firebase/database';
 
 
 const LogInScreen = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
   
   const navigation = useNavigation();
 
+  
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, username, password)
       .then((userCredential) => {

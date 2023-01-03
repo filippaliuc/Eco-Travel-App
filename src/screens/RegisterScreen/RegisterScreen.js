@@ -3,23 +3,33 @@ import React, { useEffect, useState } from 'react'
 import Logo from '../../../assets/bus_logo.png'
 import CustomInput from "./CustomInput";
 import CustomButton from "./CustomButton";
-import { auth } from "../../../firebase"
+import { auth, database } from "../../../firebase"
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
 import { useNavigation } from '@react-navigation/native';
+import { ref, set } from "firebase/database";
+
 const RegisterScreen = () => {
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const navigation = useNavigation();
 
+  function writeUserToRealtimeDb(userId){
+    set(ref(database,'users/' + userId), {
+      email: email,
+      role: 'student'
+    });
+  }
+  
   const handleRegister = () => {
     if(password === confirmPassword){
-      createUserWithEmailAndPassword(auth, username, password)
+      createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
+        writeUserToRealtimeDb(user.uid)
         navigation.navigate("HomeScreen")
         showToast()
         console.log("Registered")
@@ -49,10 +59,10 @@ const RegisterScreen = () => {
         resizeMode="contain"
       />
       <Text style={styles.appTitle}>Eco Travel</Text>
-      <CustomInput placeholder="Username" value={username} setvalue={text => setUsername(text)} />
+      <CustomInput placeholder="Email" value={email} setvalue={text => setEmail(text)} />
       <CustomInput placeholder="Password" value={password} setvalue={text => setPassword(text)} secureTextEntry={true} />
       <CustomInput placeholder="Confirm Password" value={confirmPassword} setvalue={text => setConfirmPassword(text)} secureTextEntry={true} />
-      <CustomButton text="Register" onPress={handleRegister} type="Register"/>
+      <CustomButton text="Register" onPress={() => handleRegister()} type="Register"/>
       <View style={styles.text}> 
         <Text style={{color: 'white', fontWeight: "500"}}>Already have an account? </Text>
         <Text 

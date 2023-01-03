@@ -6,6 +6,8 @@ import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import * as Location from 'expo-location';
 import { selectDestination } from '../../components/navSlice'
 import { useSelector } from 'react-redux'
+import { auth, database } from '../../../firebase';
+import { onValue, ref } from 'firebase/database';
 
 const HomeScreen = () => {
 
@@ -13,6 +15,17 @@ const HomeScreen = () => {
 
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const userId = auth.currentUser.uid
+
+  const read = () => {
+    const star = ref(database, 'users/');
+    onValue(star, (snapshot) => {
+      const data = snapshot.val()
+      for(let i in data){
+      }
+    })
+  }
 
   useEffect(() => {
       (async () => {
@@ -24,6 +37,7 @@ const HomeScreen = () => {
           let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
           setLocation(location);
           // console.log(location)
+          // console.log(userId)
       })();
   }, []);
 
