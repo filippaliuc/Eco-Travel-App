@@ -6,24 +6,41 @@ import CustomButton from "./CustomButton";
 import { auth, database } from "../../../firebase"
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
 import { useNavigation } from '@react-navigation/native';
-import { ref, onValue, update } from '@firebase/database';
+import { ref, onValue} from '@firebase/database';
 
 
 const LogInScreen = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState('')
+
+  useEffect(() => {
+    if(role === 'sofer'){
+      navigation.navigate("DriverScreen")
+    } else if (role === 'student') {
+      navigation.navigate("HomeScreen")
+    }
+  }, [role])
+  
   
   const navigation = useNavigation();
 
+  const readUserRole = (userId) => {
+    const roleRef = ref(database, 'users/' + userId);
+    onValue(roleRef, (snapshot) => {
+      const data = snapshot.val()
+      setRole(data.role)
+    })
+  }
   
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, username, password)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        navigation.navigate("HomeScreen")
+        console.log(user.uid) 
+        readUserRole(user.uid)
         // ...
       })
       .catch((error) => {
