@@ -3,6 +3,8 @@ import React, {useEffect, useState} from 'react'
 import VehicleChooser from "./VehicleChooser";
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+import { auth, database } from "../../../firebase"
+import { getDatabase, ref, onValue, child, exists, remove, update, set, get } from "firebase/database";
 
 const LOCATION_TASK_NAME = 'LOCATION_TASK_NAME';
 let foregroundSubscription = null
@@ -23,16 +25,48 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     }
 })
 
+function writeDriverData(userId, type, line, size, position) {
+    set(ref(database, 'drivers/' + userId), {
+        type: type,
+        line: line,
+        size : size,
+        position: position
+    }).catch(console.error);
+}
+
 const DriverScreen = () => {
 
     const [vehicle, setVehicle] = useState({type:null,line:null,size:null,isSet:false});
     const [position, setPosition] = useState(null)
+    const userId = auth.currentUser.uid
 
-    // useEffect(() => {
-    //     if(vehicle.isSet) {
-    //         startLocationTracking();
-    //     }
-    // });
+    const dbRef = ref(getDatabase());
+
+    get(child(dbRef, `drivers/${userId}`)).then((snapshot) => {
+        if (snapshot.exists() && !vehicle.isSet) {
+            setVehicle({
+                type: snapshot.val().type,
+                line: snapshot.val().line,
+                size: snapshot.val().size,
+                isSet: true
+            })
+        }
+    }).catch((error) => {
+        console.error(error);
+    });
+
+    useEffect(() => {
+        if(vehicle.isSet) {
+            writeDriverData(userId, vehicle.type, vehicle.line, vehicle.size, position);
+            startForegroundUpdate().catch(console.error);
+        }
+    }, [vehicle.isSet]);
+
+    useEffect(() => {
+        if(position != null) {
+            writeDriverData(userId, vehicle.type, vehicle.line, vehicle.size, position);
+        }
+    }, [position]);
 
     const startLocationTracking = async () => {
         await Location.startLocationUpdatesAsync(TASK_NAME, {
@@ -93,6 +127,10 @@ const DriverScreen = () => {
     const stopForegroundUpdate = () => {
         foregroundSubscription?.remove()
         setPosition(null)
+
+        remove(ref(database, 'drivers/' + userId)).catch(console.error)
+
+        setVehicle({type:null,line:null,size:null,isSet:false})
     }
 
     // Start location tracking in background
@@ -157,7 +195,6 @@ const DriverScreen = () => {
         return (
             <View style={styles.container}>
                 <Text>Driver Screen</Text>
-                <Button title="Start tracking" onPress={startForegroundUpdate} />
                 <Button title="Stop tracking" onPress={stopForegroundUpdate} />
             </View>
         )
