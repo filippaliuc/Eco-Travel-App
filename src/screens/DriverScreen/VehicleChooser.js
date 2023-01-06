@@ -1,23 +1,11 @@
 import React, {useEffect, useState} from 'react'
 import {View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView} from "react-native";
+import {VehicleTypes, VehicleSizes} from "../../models/vehicle";
 import Bus from "../../../assets/bus_logo.png";
 import Tram from "../../../assets/bus_logo.png";
 import Small from "../../../assets/bus_logo.png";
 import Normal from "../../../assets/bus_logo.png";
 import Large from "../../../assets/bus_logo.png";
-
-const VehicleTypes = {
-    DEFAULT: 0,
-    BUS: 1,
-    TRAM: 2
-};
-
-const VehicleSizes = {
-    DEFAULT: 0,
-    SMALL: 1,
-    NORMAL: 2,
-    LARGE: 3,
-};
 
 const VehicleChooser = ({vehicle, setVehicle}) => {
 
