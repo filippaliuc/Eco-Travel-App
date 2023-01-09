@@ -1,6 +1,7 @@
 import {Dimensions, Image, StyleSheet, Text, TouchableHighlight, View} from 'react-native'
 import React, {useEffect, useRef, useState} from 'react'
-import MapView, { Marker, Callout, Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
+import { Marker, Callout, Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
+import MapView from "react-native-map-clustering";
 import { useSelector } from 'react-redux'
 import { selectDestination, selectOrigin, setOrigin } from './navSlice'
 import MapViewDirection from "react-native-maps-directions"
@@ -12,8 +13,10 @@ import BusMarker from "../../assets/bus-marker.png";
 import TramMarker from "../../assets/tram-marker.png";
 import {VehicleTypes, VehicleSizes} from "../models/vehicle";
 import {mapStyle} from './mapStyle'
+import {getDistance} from "geolib";
+import {FilterTypes} from "../models/filter";
 
-const Map = ({currentLocation, drivers, lines, stations}) => {
+const Map = ({currentLocation, drivers, lines, stations, filter}) => {
 
     const origin = useSelector(selectOrigin);
     const destination = useSelector(selectDestination);
@@ -24,8 +27,8 @@ const Map = ({currentLocation, drivers, lines, stations}) => {
     const [lat, setLat] = useState(43);
     const [lng, setLng] = useState(42);
 
+    const [driversArray,setDriversArray ] = useState([]);
     const [linesArray,setLinesArray ] = useState([]);
-    const [stationsArray,setStationsArray ] = useState([]);
 
     const getVehicleMarkerImage = (type) => {
 
@@ -35,16 +38,6 @@ const Map = ({currentLocation, drivers, lines, stations}) => {
             return TramIcon;
 
         return CarIcon
-    }
-
-    const getStationMarkerImage = (type) => {
-
-        if(type == VehicleTypes.BUS)
-            return BusMarker;
-        else if (type == VehicleTypes.TRAM)
-            return TramMarker;
-
-        return BusMarker
     }
 
     const getStationCoord = (stationId) => {
@@ -60,26 +53,45 @@ const Map = ({currentLocation, drivers, lines, stations}) => {
     }
 
     useEffect(() => {
-        if(lines != null) {
-            let arr = [];
-            Object.entries(lines).map(line => {
-                arr.push(line[1]);
-            })
 
-            setLinesArray(arr);
+        if(drivers) {
+            switch (filter.vehiclesFilter) {
+                case FilterTypes.SHOW_ALL:
+                    setDriversArray(Object.values(drivers));
+                    break;
+
+                case FilterTypes.SHOW_NEARBY:
+                    if(currentLocation) {
+                        setDriversArray(Object.values(drivers).filter(d =>
+                            getDistance({
+                                    latitude: currentLocation?.coords?.latitude,
+                                    longitude: currentLocation?.coords?.longitude
+                                },
+                                {
+                                    latitude: d.position.latitude,
+                                    longitude: d.position.longitude
+                                }
+                            ) < 1000)
+                        );
+                    }
+                    break;
+
+                case FilterTypes.HIDDEN:
+                    setDriversArray([]);
+                    break;
+            }
         }
-    }, [lines])
+        else
+            setDriversArray([]);
+
+
+    }, [drivers, filter, currentLocation])
 
     useEffect(() => {
-        if(stations != null) {
-            let arr = [];
-            Object.entries(stations).map(station => {
-                arr.push(station[1]);
-            })
-
-            setStationsArray(arr);
+        if(lines != null) {
+            setLinesArray(Object.values(lines));
         }
-    }, [stations])
+    }, [lines])
 
     useEffect(() => {
         // console.log(currentLocation);
@@ -103,14 +115,12 @@ const Map = ({currentLocation, drivers, lines, stations}) => {
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
                 showsUserLocation={true}
-                region={
-                        {
-                            latitude: lat,
-                            longitude: lng,
-                            latitudeDelta: 0.005,
-                            longitudeDelta: 0.005,
-                        }
-                }
+                initialRegion={{
+                    latitude: 45.74767,
+                    longitude: 21.22636,
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005,
+                }}
             >
                 {origin && destination && (
                     <MapViewDirection
@@ -153,27 +163,27 @@ const Map = ({currentLocation, drivers, lines, stations}) => {
                     />
                 )}
 
-                {drivers && drivers.filter(d => d.position).map((marker, index) =>
+                {driversArray && driversArray.filter(d => d.position).map((driver, index) =>
                     <Marker
                         key={index}
                         coordinate={{
-                            latitude: marker.position.latitude,
-                            longitude: marker.position.longitude
+                            latitude: driver.position.latitude,
+                            longitude: driver.position.longitude
                         }}
                     >
                         <Image
-                            source={getVehicleMarkerImage(marker.type)}
+                            source={getVehicleMarkerImage(driver.type)}
                             style={{width: 80, height: 50, marginTop: 12}}
                             resizeMode="center"
                             resizeMethod="resize"
                         />
                         <Callout tooltip={false} style={styles.calloutContainer}>
-                            <Text>Size: {marker.size}</Text>
+                            <Text>Size: {driver.size}</Text>
                         </Callout>
                     </Marker>
                 )}
 
-                {linesArray && linesArray.map((line,index) => {
+                {linesArray && stations && linesArray.map((line,index) => {
                     let waypoints = [];
                     const startCoord = getStationCoord(line.stations[0]);
                     for(let i = 1; i < line.stations.length; i++) {
@@ -196,25 +206,27 @@ const Map = ({currentLocation, drivers, lines, stations}) => {
                     )}
                 )}
 
-                {stationsArray && stationsArray.filter(s => s.isValid).map((station,index) =>
+                {stations && stations.map((station,index) => {
+
+                    return (
                     <Marker
-                        key={index}
+                        key={station.stop_id}
                         coordinate={{
-                            latitude: station.coordinates[0],
-                            longitude: station.coordinates[1]
+                            latitude: parseFloat(station.stop_lat),
+                            longitude: parseFloat(station.stop_lon)
                         }}
                     >
                         <Image
-                            source={getStationMarkerImage(station.type)}
+                            source={BusMarker}
                             style={{width: 85, height: 30, marginTop: 34}}
                             resizeMode="center"
                             resizeMethod="resize"
                         />
                         <Callout tooltip={false} style={styles.calloutContainer}>
-                            <Text>{station.name}</Text>
+                            <Text>{station.stop_name}</Text>
                         </Callout>
-                    </Marker>
-                )}
+                    </Marker>)
+                })}
 
             </MapView> 
         )

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Map from "../../components/Map"
 import CustomInput from './CustomInput'
@@ -8,6 +8,12 @@ import { selectDestination } from '../../components/navSlice'
 import { useSelector } from 'react-redux'
 import { auth, database } from '../../../firebase';
 import {onValue, ref, set, push, child, update} from 'firebase/database';
+import FilterButton from "./FilterButton";
+import { Modal } from 'react-native'
+import {FilterTypes} from "../../models/filter";
+import FilterModal from "./FilterModal";
+
+let foregroundSubscription = null
 
 const HomeScreen = () => {
 
@@ -17,7 +23,15 @@ const HomeScreen = () => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [drivers, setDrivers] = useState([]);
     const [lines, setLines] = useState(null);
-    const [stations, setStations] = useState(null);
+    const [stations, setStations] = useState([]);
+    const [stationsAll, setStationsAll] = useState([]);
+    const [filter, setFilter] = useState({
+        routeFilter: 0,
+        vehiclesFilter: FilterTypes.SHOW_NEARBY,
+        stationsFilter: FilterTypes.SHOW_NEARBY
+    });
+
+    const [showFilterModal, setShowFilterModal] = useState(false);
 
     const userId = auth.currentUser?.uid
 
@@ -35,14 +49,7 @@ const HomeScreen = () => {
           try {
             const driversRef = ref(database, 'drivers/');
             onValue(driversRef, (snapshot) => {
-                const data = snapshot.val();
-
-                let arr = [];
-                Object.entries(data).map(driver => {
-                    arr.push(driver[1]);
-                })
-
-                setDrivers(arr);
+                setDrivers(snapshot.val());
             });
           }
           catch(error) {
@@ -53,29 +60,30 @@ const HomeScreen = () => {
       fetchDrivers().catch(console.error);
     }, [])
 
-    useEffect(() => {
-        const fetchLines = async () => {
-            try {
-                const linesRef = ref(database, 'lines/');
-                onValue(linesRef, (snapshot) => {
-                    setLines(snapshot.val());
-                });
-            }
-            catch(error) {
-                console.error(error);
-            }
-        }
-
-        fetchLines().catch(console.error);
-    }, [])
+    // useEffect(() => {
+    //     const fetchLines = async () => {
+    //         try {
+    //             const linesRef = ref(database, 'lines/');
+    //             onValue(linesRef, (snapshot) => {
+    //                 setLines(snapshot.val());
+    //             });
+    //         }
+    //         catch(error) {
+    //             console.error(error);
+    //         }
+    //     }
+    //
+    //     fetchLines().catch(console.error);
+    // }, [])
 
     useEffect(() => {
         const fetchStations = async () => {
             try {
-                const stationsRef = ref(database, 'stations/');
-                onValue(stationsRef, (snapshot) => {
-                    setStations(snapshot.val());
-                });
+                await fetch('https://api.opentransport.ro/gtfs/v1/stop')
+                    .then((response) => response.json())
+                    .then((json) => setStationsAll(json))
+                    .catch((error) => console.error(error))
+
             }
             catch(error) {
                 console.error(error);
@@ -85,29 +93,57 @@ const HomeScreen = () => {
         fetchStations().catch(console.error);
     }, [])
 
-    // useEffect(() => {
-    //     console.log('AAA')
-    //     //console.log(drivers["etbwNBv6cuaAMA6aHNl5DqlzObs1"].position.latitude);
-    //     if(stations != null) {
-    //         //Object.entries(drivers).map(d =>{console.log(d[1])})
-    //         console.log(stations)
-    //     }
-    // }, [stations])
+    useEffect(() => {
 
-  useEffect(() => {
-      (async () => {
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-              setErrorMsg('Permission to access location was denied');
-              return;
-          }
-          let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
-          setLocation(location);
-          // console.log(location)
-          console.log(userId)
-      })();
-  }, []);
+        if(filter.stationsFilter == FilterTypes.SHOW_ALL)
+        {
+            setStations(stationsAll);
+        }
+        else if(location && filter.stationsFilter == FilterTypes.SHOW_NEARBY)
+        {
+            fetch(`https://api.opentransport.ro/gtfs/v1/stop/nearby?latitude=${location?.coords.latitude}&longitude=${location?.coords.longitude}&radius=1000`)
+                .then((response) => response.json())
+                .then((json) => setStations(json))
+                .catch((error) => console.error(error))
+        }
+        else {
+            setStations([]);
+        }
 
+    }, [filter.stationsFilter, location]);
+
+    useEffect(() => {
+        const requestPermissions = async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
+            setLocation(location);
+        }
+        requestPermissions().catch(console.error);
+        startForegroundUpdate().catch(console.error);
+    }, []);
+
+    const startForegroundUpdate = async () => {
+        // Check if foreground permission is granted
+
+        // Make sure that foreground location tracking is not running
+        foregroundSubscription?.remove()
+
+        // Start watching position in real-time
+        foregroundSubscription = await Location.watchPositionAsync(
+            {
+                // For better logs, we set the accuracy to the most sensitive option
+                accuracy: Location.Accuracy.BestForNavigation,
+            },
+            location => {
+                setLocation(location)
+            }
+        )
+    }
 
   return (
   <View style={styles.container}>
@@ -118,7 +154,11 @@ const HomeScreen = () => {
       <CustomInput text="Destinatie:" placeholder="Destination" set="Destination"></CustomInput>
       {/* <CustomButton text="Cauta" onPress={() => setShowStart(true)}></CustomButton> */}
     </View>
-      <Map styles={styles.map} currentLocation={location} drivers={drivers} lines={lines} stations={stations}/>
+      <Map styles={styles.map} currentLocation={location} drivers={drivers} lines={lines} stations={stations} filter={filter}/>
+      <FilterButton onPress={() => setShowFilterModal(true)} />
+      <FilterModal isVisible={showFilterModal} onClose={() => setShowFilterModal(false)} filter={filter} setFilter={setFilter}>
+
+      </FilterModal>
     < NavigationBar></NavigationBar>
   </View>
   )
@@ -130,7 +170,7 @@ export default HomeScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: '6%', 
+    marginTop: '6%',
     justifyContent: 'flex-end',
     backgroundColor: 'white'
   },
