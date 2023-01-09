@@ -49,6 +49,7 @@ xcuserdata
 
 # VSCode
 .history/
+.env
 
 # Android
 *.apk
