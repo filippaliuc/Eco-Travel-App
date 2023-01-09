@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { CardField, initStripe, StripeProvider, useConfirmPayment } from '@stripe/stripe-react-native'
 import Dialog from "react-native-dialog"
 import { auth, database } from "../../../firebase"
-import { onValue, ref } from '@firebase/database'
+import { child, onValue, ref, push, update } from '@firebase/database'
 import { getId } from '../CustomFlatList'
 import { ticketsData } from '../../models/ticketsData'
 import moment from 'moment'
@@ -21,10 +21,6 @@ const Card = ({showCard, hideCard}) => {
     const [ticketType, setTicketType] = useState('nothing')
     const [cardDetails, setCardDetails] = useState()
     const {confirmPayment, loading } = useConfirmPayment()
-    const [date, setDate] = useState(null)
-
-    let testDate = moment(`2023-01-09 05:00:07`).format(`YYYY-MM-DD hh:mm:ss`)
-    let a = moment().format(`YYYY-MM-DD hh:mm:ss`)
     
     useEffect(() => {
         const userId = auth.currentUser?.uid
@@ -41,12 +37,24 @@ const Card = ({showCard, hideCard}) => {
             setPrice(ticketsData[getId() - 1].price)
             setTicketType(ticketsData[getId()-1].name) 
         }
-        setDate(moment().format(`YYYY-MM-DD hh:mm:ss`))
     }, [showCard])
 
-    
-    console.log(date, testDate)
-    // console.log(a.diff(testDate,'days'))
+    function writeTicketsToDB(){
+        const date = new Date();
+
+        const newPostKey = push(child(ref(database),'posts')).key;
+        const dateId = `dateId${newPostKey}`;
+
+        const updates = {}
+        updates['users/' + userId + '/tickets/' + dateId] = date;
+
+        return update(ref(database), updates)
+    }
+
+    function getActiveTickets () {
+        
+    }
+
     const fetchPaymentIntentClientSecret = async () => {
         const response = await fetch(`${API_URL}/create-payment-intent`, {
             method: 'POST',
@@ -91,10 +99,11 @@ const Card = ({showCard, hideCard}) => {
                 if(error) { 
                     Alert.alert(`Payment confimation error ${error.message}`);
                 } else if (paymentIntent){  
-                    // formatDate()
                     alert("Payment Succesful");
-                    console.log("Payment succesful ", paymentIntent);
-                    console.log(billingDetails)
+                    // setDate(new Date())
+                    writeTicketsToDB()
+                    // console.log("Payment succesful ", paymentIntent);
+                    // console.log(billingDetails)
                 }
             }
         } catch(e) {
