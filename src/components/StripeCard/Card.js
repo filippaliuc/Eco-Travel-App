@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { CardField, initStripe, StripeProvider, useConfirmPayment } from '@stripe/stripe-react-native'
 import Dialog from "react-native-dialog"
 import { auth, database } from "../../../firebase"
-import { child, onValue, ref, push, update } from '@firebase/database'
+import { child, onValue, ref, push, update, remove } from '@firebase/database'
 import { getId } from '../CustomFlatList'
 import { ticketsData } from '../../models/ticketsData'
 import moment from 'moment'
@@ -30,6 +30,7 @@ const Card = ({showCard, hideCard}) => {
             setUserId(userId);
             setUsername(data.email)
         })
+        readActiveTickets()
     }, [])
 
     useEffect(() => {
@@ -42,17 +43,37 @@ const Card = ({showCard, hideCard}) => {
     function writeTicketsToDB(){
         const date = new Date();
 
+        const postData = {
+            date: date,
+            type: ticketType,
+        };
         const newPostKey = push(child(ref(database),'posts')).key;
-        const dateId = `dateId${newPostKey}`;
+        const dateId = `Id${newPostKey}`;
 
         const updates = {}
-        updates['users/' + userId + '/tickets/' + dateId] = date;
+        updates['users/' + userId + '/tickets/' + dateId] = postData;
 
         return update(ref(database), updates)
     }
 
-    function getActiveTickets () {
-        
+    function readActiveTickets(){
+        const currentDate = new Date()
+        const ticketsRef = ref(database, 'users/' + userId + '/tickets/');
+        onValue(ticketsRef, (snapshot) => {
+            snapshot.forEach((child) => {
+                const date = new Date(child.val().date)
+                const ticketType = child.val().type
+                const diff = Math.floor((currentDate-date)/(1000*60*60))
+                // console.log(diff)
+                if(ticketType == "Bilet 60 de minute" && diff){
+                    const removedIdRef = ref(database, 'users/' + userId + '/tickets/' + child.key)
+                    remove(removedIdRef)
+                } else if (ticketType == "Bilet de o zi" && diff>24 ) {
+                    const removedIdRef = ref(database, 'users/' + userId + '/tickets/' + child.key)
+                    remove(removedIdRef)
+                }
+            })
+        })
     }
 
     const fetchPaymentIntentClientSecret = async () => {
@@ -100,7 +121,6 @@ const Card = ({showCard, hideCard}) => {
                     Alert.alert(`Payment confimation error ${error.message}`);
                 } else if (paymentIntent){  
                     alert("Payment Succesful");
-                    // setDate(new Date())
                     writeTicketsToDB()
                     // console.log("Payment succesful ", paymentIntent);
                     // console.log(billingDetails)
