@@ -6,7 +6,6 @@ import { auth, database } from "../../../firebase"
 import { child, onValue, ref, push, update, remove } from '@firebase/database'
 import { getId } from '../CustomFlatList'
 import { ticketsData } from '../../models/ticketsData'
-import moment from 'moment'
 
 
 const API_URL = "http://192.168.1.6:3000"
@@ -102,7 +101,7 @@ const Card = ({showCard, hideCard}) => {
           userId: userId,
           username: username
         };
-    
+        
         // Fetch the intent client secret from the backend
 
         try{
