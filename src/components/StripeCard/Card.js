@@ -47,10 +47,9 @@ const Card = ({showCard, hideCard}) => {
             type: ticketType,
         };
         const newPostKey = push(child(ref(database),'posts')).key;
-        const dateId = `Id${newPostKey}`;
 
         const updates = {}
-        updates['users/' + userId + '/tickets/' + dateId] = postData;
+        updates['users/' + userId + '/tickets/' + newPostKey] = postData;
 
         return update(ref(database), updates)
     }

@@ -28,7 +28,7 @@ const CustomFlatList = ({data, isTicket, showToast, showCard}) => {
         let nrOfActiveTickets = 0;
         const userRef = ref(database, 'users/' + userId + '/tickets/')
         onValue(userRef, (snapshot) => {
-            snapshot.forEach((child) => {
+            snapshot.forEach(() => {
                 nrOfActiveTickets++;
             })
         })
@@ -69,16 +69,15 @@ const CustomFlatList = ({data, isTicket, showToast, showCard}) => {
         return data[selectedId-1].name === 'reduceri/gratuitati' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
     }
 
-    const activeGreen = () => {
-        return <Text style={{color: "green"}}>active</Text>
-    }
-
     const ticketsAvailability = () => {
         if(isTicket){
             if(nrOfActiveTickets){
                 return (
                     <TouchableOpacity onPress={() => navigation.navigate("ActiveTicketScreen")}> 
-                        <Text style={styles.activeTickets}> Ai {nrOfActiveTickets} bilete {activeGreen()} </Text>
+                        <Text style={styles.activeTickets}> 
+                            Ai {nrOfActiveTickets} bilete 
+                            <Text style={{color: "green"}}> active</Text>
+                        </Text>
                     </TouchableOpacity>
                 ) 
             } else {
