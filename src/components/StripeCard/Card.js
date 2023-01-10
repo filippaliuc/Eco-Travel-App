@@ -6,13 +6,14 @@ import { auth, database } from "../../../firebase"
 import { child, onValue, ref, push, update, remove } from '@firebase/database'
 import { getId } from '../CustomFlatList'
 import { ticketsData } from '../../models/ticketsData'
+import { busPassData } from '../../models/busPassData'
 
 
 const API_URL = "http://192.168.1.6:3000"
 
 const STRIPE_PK = 'pk_test_51MMYuXKVO8NcwZ1fSkRFO3NB9RnbEvRyhHZofipYYkFQ8mjPoNTatgbfVFzxvjtRTdmlV73mxaVG2NsCepIxbxZP0047AuCHDZ'
 
-const Card = ({showCard, hideCard}) => {
+const Card = ({showCard, hideCard, cardType, selectedId}) => {
 
     const [userId, setUserId] = useState(null)
     const [username, setUsername] = useState('')
@@ -21,6 +22,7 @@ const Card = ({showCard, hideCard}) => {
     const [cardDetails, setCardDetails] = useState()
     const {confirmPayment, loading } = useConfirmPayment()
     
+    console.log(selectedId)
     useEffect(() => {
         const userId = auth.currentUser?.uid
         const userRef = ref(database, 'users/' + userId);
@@ -33,9 +35,17 @@ const Card = ({showCard, hideCard}) => {
     }, [])
 
     useEffect(() => {
-        if(getId()){
-            setPrice(ticketsData[getId() - 1].price)
-            setTicketType(ticketsData[getId()-1].name) 
+        if(cardType === "Ticket")
+        { 
+            if(getId()){
+                setPrice(ticketsData[getId() - 1].price)
+                setTicketType(ticketsData[getId()-1].name) 
+            }
+        } else if (cardType === "Subscription") {
+            if(selectedId){
+                setPrice(busPassData[selectedId - 1].price)
+                setTicketType(busPassData[selectedId-1].name) 
+            }
         }
     }, [showCard])
 
@@ -50,6 +60,21 @@ const Card = ({showCard, hideCard}) => {
 
         const updates = {}
         updates['users/' + userId + '/tickets/' + newPostKey] = postData;
+
+        return update(ref(database), updates)
+    }
+
+    function writeSubscriptionToDB(){
+        const date = new Date();
+
+        const postData = {
+            date: date,
+            type: ticketType,
+        };
+        const newPostKey = push(child(ref(database),'posts')).key;
+
+        const updates = {}
+        updates['users/' + userId + '/subscriptions/' + newPostKey] = postData;
 
         return update(ref(database), updates)
     }
@@ -119,7 +144,11 @@ const Card = ({showCard, hideCard}) => {
                     Alert.alert(`Payment confimation error ${error.message}`);
                 } else if (paymentIntent){  
                     alert("Payment Succesful");
-                    writeTicketsToDB()
+                    if(cardType === 'Ticket'){
+                        writeTicketsToDB()
+                    } else if (cardType === 'Subscription'){
+                        writeSubscriptionToDB()
+                    }
                     // console.log("Payment succesful ", paymentIntent);
                     // console.log(billingDetails)
                 }

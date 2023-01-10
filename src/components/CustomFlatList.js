@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { auth, database } from "../../firebase"
 import { ref, onValue } from 'firebase/database';
+import { busPassData } from '../models/busPassData';
 
 let id = null;
 function setId(key) {
@@ -66,7 +67,7 @@ const CustomFlatList = ({data, isTicket, showToast, showCard}) => {
     };
 
     const handleConfirm = () => {
-        return data[selectedId-1].name === 'reduceri/gratuitati' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
+        return busPassData[selectedId-1].name === 'reduceri/gratuitati' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
     }
 
     const ticketsAvailability = () => {
