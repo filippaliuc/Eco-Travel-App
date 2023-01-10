@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import { ticketsData } from '../../models/ticketsData';
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -10,6 +10,9 @@ import Card from '../../components/StripeCard/Card';
 const TicketScreen = () => {
 
   const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+  }, [])
 
   function showItemNotSelectedToast () {
     Toast.show('Nu ati ales niciun timp de bilet', {
