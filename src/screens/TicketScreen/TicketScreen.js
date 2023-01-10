@@ -29,7 +29,7 @@ const TicketScreen = () => {
           showToast={() => showItemNotSelectedToast()}
           showCard={() => setVisible(true)}
         />
-        <Card showCard={visible} hideCard={() => setVisible(false)}></Card>
+        <Card showCard={visible} hideCard={() => setVisible(false)} cardType="Ticket"></Card>
         < NavigationBar></NavigationBar>
       </View>
     </RootSiblingParent>

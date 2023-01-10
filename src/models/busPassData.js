@@ -1,4 +1,4 @@
-export const data = [ 
+export const busPassData = [ 
     {
       name: "1 linie - 30 de zile", 
       details: "Acest abonament este valabil timp de 30 de zile pentru o singura linie.", 
