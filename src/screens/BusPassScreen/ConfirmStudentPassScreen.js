@@ -1,10 +1,12 @@
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import { useNavigation } from '@react-navigation/core'
+import { RootSiblingParent } from 'react-native-root-siblings';
 import { SelectList } from 'react-native-dropdown-select-list';
 import CustomView from './CustomView';
+import Toast from 'react-native-root-toast';
 
 const data = [
   {key: '1', value:"student"},
@@ -15,47 +17,113 @@ const ConfirmStudentPassScreen = ({}) => {
 
   const navigation = useNavigation()
   const [selectedValue, setSelectedValue] = useState("")
+  const [identityCard, setIdentityCard] = useState(null)
+  const [transporCard, setTransportCard] = useState(null)
+  const [studentCard, setStudentCard] = useState(null)
+  const [isUploaded, setIsUploaded] = useState(false)
+
+  console.log("Buletin " + identityCard)
+  console.log("Transport " + transporCard)
+  console.log("Student " + studentCard)
+
+  useEffect(() => {
+    if(selectedValue === 'student' && identityCard && studentCard && transporCard){
+      setIsUploaded(true)
+    } else if (selectedValue === 'pensionar' && identityCard){
+      setIsUploaded(true)
+    }
+  }, [identityCard, studentCard, transporCard])
+  
+  useEffect(() => {
+    setIdentityCard(null);
+    setTransportCard(null);
+    setStudentCard(null);
+    setIsUploaded(false)
+  }, [selectedValue])
+  
+  
+
+  function getDropdownSelectedDetails () {
+    if(selectedValue === 'student') {
+      return(
+        <View style={{flex:1, margin: 10}}>
+            <Text style={styles.text}>
+              Act de identitate:
+            </Text>
+            <CustomView getImage={setIdentityCard}/>
+            <Text style={styles.text}>
+              Legitimatie de transport
+            </Text>
+            <CustomView getImage={setTransportCard}/>
+            <Text style={styles.text}>
+              Carnet de student:
+            </Text>
+            <CustomView getImage={setStudentCard}/>
+        </View>
+      )
+    } else if (selectedValue === 'pensionar') {
+      return(
+        <View style={{flex:1, margin: 10}}>
+          <Text style={styles.text}>
+              Act de identitate:
+            </Text>
+          <CustomView getImage={setIdentityCard}/>
+        </View>
+      )
+    }
+  }
+
+  function showNotUploadedToast () {
+    Toast.show('Nu ati incarcat toate documentele', {
+      duration: Toast.durations.LONG,
+    });
+  }
+
+  function showUploadedToast () {
+    Toast.show('Ati incarcat cu succes', {
+      duration: Toast.durations.LONG,
+    });
+  }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <SelectList
-          setSelected={(val) => setSelectedValue(val)}
-          data={data}
-          save="value"
-          search={false}
-          boxStyles={styles.selectList}
-          dropdownStyles={{}}
-        />
-        {selectedValue==='student' && (
-          <View style={{flex:1}}>
-            <CustomView text={"Act de identitate: "}/>
-            <CustomView text={"Legitimatie de transport: "}/>
-            <CustomView text={"Carnet de student: "}/>
-          </View>
-        )}
-      </View>
-      <TouchableOpacity
-        onPress={() => Linking.openURL("http://ratt.ro/taxare/facilitati.pdf")}
-        >
-        <Text 
-          style={{fontWeight: 'bold', fontSize: 15, textDecorationLine: 'underline'}}
-        >
-          Vezi ce facilitati ai
-        </Text>
-      </TouchableOpacity>
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={[styles.buttons]} onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={23} color="white" />
-          <Text style={{fontSize: 20, color: 'white', fontWeight:"500"}}>Inapoi   </Text>
+    <RootSiblingParent>
+      <View style={styles.container}>
+        <View style={styles.topContainer}>
+          <SelectList
+            setSelected={(val) => setSelectedValue(val)}
+            data={data}
+            save="value"
+            search={false}
+            boxStyles={styles.selectList}
+            dropdownStyles={{}}
+          />
+          {getDropdownSelectedDetails()}
+        </View>
+        <TouchableOpacity
+          onPress={() => Linking.openURL("http://ratt.ro/taxare/facilitati.pdf")}
+          >
+          <Text 
+            style={{fontWeight: 'bold', fontSize: 15, textDecorationLine: 'underline'}}
+          >
+            Vezi ce facilitati ai
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttons}>
-          <Text style={{fontSize: 20, color: 'white', fontWeight:"500"}}>  Incarca</Text>
-          <Ionicons name="chevron-forward" size={23} color="white"/>
-        </TouchableOpacity>  
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={[styles.buttons]} onPress={() => navigation.goBack()}>
+            <Ionicons name="chevron-back" size={23} color="white" />
+            <Text style={{fontSize: 20, color: 'white', fontWeight:"500"}}>Inapoi   </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.buttons}
+            onPress={isUploaded? () => showUploadedToast() : () => showNotUploadedToast()} 
+          >
+            <Text style={{fontSize: 20, color: 'white', fontWeight:"500"}}>  Incarca</Text>
+            <Ionicons name="chevron-forward" size={23} color="white"/>
+          </TouchableOpacity>  
+        </View>
+        <NavigationBar></NavigationBar>
       </View>
-      <NavigationBar></NavigationBar>
-    </View>
+    </RootSiblingParent>
   )
 }
 
@@ -82,7 +150,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     width: 130,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    borderRadius: 10,
   },
 
   topContainer: {
@@ -95,7 +164,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  selectList:{
-    
-  },
+  text: {
+    fontSize: 20,
+    fontWeight: '500',
+  }, 
 })

@@ -138,7 +138,7 @@ const Card = ({showCard, hideCard, cardType, selectedId}) => {
                     {
                         paymentMethodType: "Card",
                         billingDetails: billingDetails,
-                    },
+                    }, 
                 );
                 if(error) { 
                     Alert.alert(`Payment confimation error ${error.message}`);
