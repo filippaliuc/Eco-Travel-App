@@ -1,8 +1,7 @@
 export const VehicleTypes = {
-    DEFAULT: 0,
-    BUS: 1,
-    TRAM: 2,
-    TROLLEYBUS: 3
+    TRAM: 0,
+    BUS: 3,
+    TROLLEYBUS: 5
 };
 
 export const VehicleSizes = {

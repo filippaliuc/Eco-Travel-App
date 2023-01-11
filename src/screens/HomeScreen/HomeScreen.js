@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import {StyleSheet, Text, View, Image, Platform, StatusBar} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Map from "../../components/Map"
 import CustomInput from './CustomInput'
@@ -170,7 +170,7 @@ export default HomeScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: '6%',
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     justifyContent: 'flex-end',
     backgroundColor: 'white'
   },
