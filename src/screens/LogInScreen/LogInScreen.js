@@ -13,16 +13,12 @@ const LogInScreen = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [navigate, setNavigate] = useState(false)
   const [role, setRole] = useState('')
 
   useEffect(() => {
-    if(role === 'sofer'){
-      navigation.navigate("DriverScreen")
-    } else if (role === 'student') {
-      navigation.navigate("HomeScreen")
-    }
+    
   }, [role])
-  
   
   const navigation = useNavigation();
 
@@ -41,13 +37,22 @@ const LogInScreen = () => {
         const user = userCredential.user;
         console.log(user.uid) 
         readUserRole(user.uid)
+        setNavigate(true)
         // ...
+        
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         Alert.alert(error.message)
       });
+      if(navigate && role === 'sofer'){
+        navigation.navigate("DriverScreen")
+        setNavigate(false)
+      } else if (role === 'student') {
+        navigation.navigate("HomeScreen")
+        setNavigate(false)
+      }
   }
 
   // console.log(auth.currentUser.uid)

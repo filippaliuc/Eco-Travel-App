@@ -81,7 +81,7 @@ const ActiveTickestScreen = ({}) => {
               onPress={() => setShowQRCode(false)}
           />
         </Dialog.Container>
-        <NavigationBar></NavigationBar>
+        {/* <NavigationBar></NavigationBar> */}
     </View>
   )
 }
