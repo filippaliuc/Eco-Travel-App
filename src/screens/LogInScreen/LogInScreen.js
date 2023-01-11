@@ -1,4 +1,4 @@
-import { View, Text, Image, KeyboardAvoidingView, StyleSheet, Alert } from 'react-native'
+import {View, Text, Image, KeyboardAvoidingView, StyleSheet, Alert, Platform, StatusBar} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Logo from '../../../assets/bus_logo.png'
 import CustomInput from "./CustomInput";
@@ -54,6 +54,7 @@ const LogInScreen = () => {
 
   return (
     <KeyboardAvoidingView style={styles.root}>
+    <StatusBar  barStyle="light-content" translucent={true} backgroundColor={'#22802c'}/>
       <Image
         source={Logo}
         style={styles.logo}
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // padding: '5%',
     backgroundColor: '#279032',
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     flex: 1
   },
 
