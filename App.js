@@ -15,7 +15,8 @@ import NavigationBar from './src/components/NavigationBar/NavigationBar';
 import { Provider } from "react-redux";
 import { store } from './store';
 import DriverScreen from "./src/screens/DriverScreen/DriverScreen";
-import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
+import { getAuth, onAuthStateChanged } from "firebase/auth"
+import ActiveTicketScreen from './src/screens/TicketScreen/ActiveTicketScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -53,6 +54,7 @@ export default function App() {
           <Stack.Screen name="ConfirmStudentPassScreen" component={ConfirmStudentPassScreen} />
           <Stack.Screen name="ConfirmStandardPassScreen" component={ConfirmStandardPassScreen} />
           <Stack.Screen name="TicketScreen" component={TicketScreen} />
+          <Stack.Screen name="ActiveTicketScreen" component={ActiveTicketScreen} />
           <Stack.Screen name="LinesScreen" component={LinesScreen} />
         </Stack.Navigator>
       </NavigationContainer>

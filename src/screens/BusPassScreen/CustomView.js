@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
-const CustomView = ({type, text}) => {
+const CustomView = (props) => {
 
     const [image, setImage] = useState(null)
     const pickImage = async () => {
@@ -15,17 +15,20 @@ const CustomView = ({type, text}) => {
           quality: 1,
         });
     
-        console.log(image);
+        // console.log(image);
     
         if (!result.canceled) {
           setImage(result.assets[0].uri);
+          props.getImage(result.assets[0].uri)
         }
+        // console.log(image)
+        
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>{text}</Text>
-            <TouchableOpacity style={styles.upload} onPress={pickImage}>
+            {/* <Text style={styles.text}>{text}</Text> */}
+            <TouchableOpacity style={styles.upload} onPress={() => pickImage()}>
                 {!image && (<MaterialCommunityIcons name="cloud-upload" size={24} color="grey"/>)}
                 {image && (
                     <Image 
@@ -55,6 +58,6 @@ const styles = StyleSheet.create({
     upload: {
         flexDirection: 'column',
         alignItems: 'center',
-        margin: 20
+        margin: 20,
     }
 })

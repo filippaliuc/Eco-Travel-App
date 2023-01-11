@@ -1,10 +1,10 @@
 import { View, Text, Image, KeyboardAvoidingView, StyleSheet, Alert, ToastAndroid } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Logo from '../../../assets/bus_logo.png'
 import CustomInput from "./CustomInput";
 import CustomButton from "./CustomButton";
 import { auth, database } from "../../../firebase"
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword } from "firebase/auth"
 import { useNavigation } from '@react-navigation/native';
 import { ref, set } from "firebase/database";
 

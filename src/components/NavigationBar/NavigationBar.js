@@ -23,22 +23,9 @@ const Test = () => {
 export default Test
 
 const styles = StyleSheet.create({
-    // navbar :{
-    //   padding: 10, 
-    //   flexDirection: 'row'
-    // },
-  
-    // arrow: {
-    //   flex: 1
-    // },
-  
-    // navIcons: {
-    //   marginHorizontal: 5,
-    // },
-  
     menuBar: {
       padding: 5, 
       flexDirection: 'row',
-    //   backgroundColor: '#EDE8E8'
+      backgroundColor: "#F3F3F3",
     },
 })

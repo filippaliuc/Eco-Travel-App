@@ -1,11 +1,40 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
+import { auth, database } from "../../firebase"
+import { ref, onValue } from 'firebase/database';
+import { busPassData } from '../models/busPassData';
 
-const CustomFlatList = ({data, isTicket, showToast}) => {
+let id = null;
+function setId(key) {
+    id = key;
+}
+
+export function getId() {
+    return id
+}
+
+const CustomFlatList = ({data, isTicket, showToast, showCard}) => {
 
     const navigation = useNavigation();
     const [selectedId, setSelectedId] = useState(null)
+    const [nrOfActiveTickets, setNrOfActiveTickets] = useState(0)
+
+    useEffect(() => {
+        const userId = auth.currentUser?.uid
+        setNrOfActiveTickets(readAvailableTickets(userId))
+    },)
+
+    const readAvailableTickets = (userId) => {
+        let nrOfActiveTickets = 0;
+        const userRef = ref(database, 'users/' + userId + '/tickets/')
+        onValue(userRef, (snapshot) => {
+            snapshot.forEach(() => {
+                nrOfActiveTickets++;
+            })
+        })
+        return nrOfActiveTickets;
+    }
 
     const Item = ({item, onPress, borderColor, textColor, elevation, borderWidth, shadowOpacity}) => (
         <TouchableOpacity 
@@ -16,7 +45,7 @@ const CustomFlatList = ({data, isTicket, showToast}) => {
           <Text style={[styles.itemText, textColor]}>{item.name}</Text>
         </TouchableOpacity>
     );
-
+    
     const renderItem = ({ item }) => {
         const borderColor = item.key === selectedId ? "#196220" : null;
         const color = item.key === selectedId ? "black" : "grey";
@@ -27,7 +56,7 @@ const CustomFlatList = ({data, isTicket, showToast}) => {
         return (
             <Item
                 item={item}
-                onPress={() => setSelectedId(item.key)}
+                onPress={() => {setSelectedId(item.key);setId(item.key);}}
                 borderColor={{ borderColor }}
                 elevation={{ elevation }}
                 shadowOpacity={{ shadowOpacity }}
@@ -38,11 +67,26 @@ const CustomFlatList = ({data, isTicket, showToast}) => {
     };
 
     const handleConfirm = () => {
-        return data[selectedId-1].name === 'reduceri/gratuitati' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
+        return busPassData[selectedId-1].name === 'reduceri/gratuitati' ? navigation.navigate("ConfirmStudentPassScreen",selectedId) : navigation.navigate("ConfirmStandardPassScreen",selectedId) 
     }
 
-    const handleBuy = () => {
-        return console.log("Merge mai departe")
+    const ticketsAvailability = () => {
+        if(isTicket){
+            if(nrOfActiveTickets){
+                return (
+                    <TouchableOpacity onPress={() => navigation.navigate("ActiveTicketScreen")}> 
+                        <Text style={styles.activeTickets}> 
+                            Ai {nrOfActiveTickets} bilete 
+                            <Text style={{color: "green"}}> active</Text>
+                        </Text>
+                    </TouchableOpacity>
+                ) 
+            } else {
+                return (
+                    <Text style={styles.inactiveTickets}> Nu aveti bilete active </Text>
+                )
+            }
+        }
     }
 
     return (
@@ -57,10 +101,16 @@ const CustomFlatList = ({data, isTicket, showToast}) => {
             {selectedId &&  data[selectedId-1].price != '0' && (
                 <Text style={styles.price}>{data[selectedId-1].price} lei</Text>
             )}
-            {selectedId && <TouchableOpacity style={styles.chooseButton} onPress={isTicket ? handleBuy : handleConfirm}>
-                <Text style={styles.chooseText}>{isTicket ? "Cumpara" : "Confimra"}</Text>
+            {   
+                selectedId && 
+                <TouchableOpacity 
+                    style={styles.chooseButton}   
+                    onPress={isTicket ? showCard : handleConfirm}
+                >
+                    <Text style={styles.chooseText}>{isTicket ? "Cumpara" : "Confimra"}</Text>
                 </TouchableOpacity> 
-                || !selectedId && 
+                ||  
+                !selectedId && 
                 <TouchableOpacity 
                     style={[styles.chooseButton,{backgroundColor: "#DDD8D8"}]} 
                     activeOpacity={0.8}
@@ -69,6 +119,8 @@ const CustomFlatList = ({data, isTicket, showToast}) => {
                     <Text style={[styles.chooseText, {color:"black"}]} >{isTicket ? "Cumpara" : "Confimra"}</Text>
                 </TouchableOpacity> 
             }
+            {ticketsAvailability()}
+            
         </View>
     )
 }
@@ -95,7 +147,7 @@ const styles = StyleSheet.create({
         paddingVertical:'5%',
         alignItems: "center",
         borderRadius: 20,
-        marginBottom: 30,
+        marginBottom: 20,
         marginTop: 15,
         elevation: 4,
         shadowOpacity: 0.2
@@ -127,5 +179,19 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: 'black',
         padding: 10,
+    },
+    activeTickets: {
+        fontSize: 16,
+        fontWeight: "500",
+        marginBottom: 10,
+        padding: 10
+    },  
+
+    inactiveTickets: {
+        fontSize: 16,
+        fontWeight: "500",
+        marginBottom: 10,
+        color: "red",
+        padding: 10
     },
 })

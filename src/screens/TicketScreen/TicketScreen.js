@@ -1,12 +1,18 @@
 import { View, StyleSheet } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import { ticketsData } from '../../models/ticketsData';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import Toast from 'react-native-root-toast';
 import CustomFlatList from '../../components/CustomFlatList';
+import Card from '../../components/StripeCard/Card';
 
 const TicketScreen = () => {
+
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+  }, [])
 
   function showItemNotSelectedToast () {
     Toast.show('Nu ati ales niciun timp de bilet', {
@@ -21,8 +27,9 @@ const TicketScreen = () => {
           data={ticketsData}
           isTicket={true} 
           showToast={() => showItemNotSelectedToast()}
-          handleBottomButton={() => handleConfirm()}
+          showCard={() => setVisible(true)}
         />
+        <Card showCard={visible} hideCard={() => setVisible(false)} cardType="Ticket"></Card>
         < NavigationBar></NavigationBar>
       </View>
     </RootSiblingParent>

@@ -1,7 +1,7 @@
 import { View, StyleSheet } from 'react-native'
 import React from 'react'
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
-import { data } from '../../models/busPassData';
+import { busPassData } from '../../models/busPassData';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import Toast from 'react-native-root-toast';
 import CustomFlatList from '../../components/CustomFlatList';
@@ -18,7 +18,7 @@ const BusPassScreen = () => {
     <RootSiblingParent>
       <View style={styles.container}>
       <CustomFlatList 
-          data={data}
+          data={busPassData}
           isTicket={false} 
           showToast={() => showItemNotSelectedToast()}
           handleBottomButton={() => handleConfirm()}
