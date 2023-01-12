@@ -17,10 +17,14 @@ const types = [
     {
         key: FilterTypes.HIDDEN,
         name: 'Hide All'
+    },
+    {
+        key: FilterTypes.ROUTE,
+        name: 'Show on Selected Route'
     }
 ]
 
-const ProximityFilter = ({itemStyle, onSelected}) => {
+const VehiclesFilter = ({itemStyle, onSelected}) => {
 
     const onOptionSelect = (type) => {
 
@@ -41,6 +45,8 @@ const ProximityFilter = ({itemStyle, onSelected}) => {
 
     }
 
+    console.log(types)
+
     return (
         <FlatList style={{width:'100%'}}
                   data={types}
@@ -57,7 +63,7 @@ const ProximityFilter = ({itemStyle, onSelected}) => {
     )
 }
 
-export default ProximityFilter
+export default VehiclesFilter
 
 const styles = StyleSheet.create({
 

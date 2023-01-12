@@ -1,5 +1,5 @@
 import React from 'react'
-import {View, StyleSheet, Animated, TouchableOpacity} from 'react-native'
+import {View, StyleSheet, Animated, TouchableOpacity, Platform, StatusBar} from 'react-native'
 import {AntDesign} from '@expo/vector-icons'
 
 const FilterButton = ({ onPress }) => {
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         opacity: 1,
         position: 'absolute',
-        top: 170,
+        top: (Platform.OS === "android" ? StatusBar.currentHeight : 0) + 170,
         right: 8
     },
 

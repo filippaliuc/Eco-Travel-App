@@ -4,7 +4,7 @@ import Modal from 'react-native-modal'
 import Filter from "../../components/Filter/Filter";
 import React from "react";
 
-export default function FilterModal({ isVisible, children, onClose , filter, setFilter}) {
+export default function FilterModal({ isVisible, children, onClose , filter, setFilter, routes}) {
     return (
         <Modal
             isVisible={isVisible}
@@ -14,10 +14,10 @@ export default function FilterModal({ isVisible, children, onClose , filter, set
             <View style={styles.modalContent}>
 
                 <TouchableOpacity onPress={onClose}>
-                    <Filter itemStyle={styles.item} filter={filter} setFilter={setFilter}/>
-                    <View style={{bottom:0, backgroundColor:'#DDD8D8', height:35, width:'100%', alignItems:'flex-end', justifyContent: 'center'}}>
+                    <Filter itemStyle={styles.item} filter={filter} setFilter={setFilter} routes={routes}/>
+                    <View style={{bottom:0, backgroundColor:'#DDD8D8', height:55, width:'100%', alignItems:'flex-end', justifyContent: 'center'}}>
                         <TouchableOpacity
-                            style={{backgroundColor: "#ccc8c8", width:60, borderRadius:5, padding: 3, marginEnd:3, alignItems:'center', elevation:6}}
+                            style={{backgroundColor: "#ccc8c8", width:80, borderRadius:5, padding: 10, marginStart:8, marginEnd:8, alignItems:'center', elevation:6}}
                             activeOpacity={0.8}
                             onPress={onClose}
                         >

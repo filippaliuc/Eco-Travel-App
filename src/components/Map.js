@@ -16,11 +16,13 @@ import {mapStyle} from './mapStyle'
 import {getDistance} from "geolib";
 import {FilterTypes} from "../models/filter";
 
-const Map = ({currentLocation, drivers, lines, stations, filter}) => {
+
+const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoutes}) => {
 
     const origin = useSelector(selectOrigin);
     const destination = useSelector(selectDestination);
     const mapRef = useRef(null);
+    const [driverTimes, setDriverTimes] = useState([]);
     
     const mapViewDirectionRef = useRef(null);
 
@@ -32,19 +34,31 @@ const Map = ({currentLocation, drivers, lines, stations, filter}) => {
 
     const getVehicleMarkerImage = (type) => {
 
-        if(type == VehicleTypes.BUS)
+        if(type == VehicleTypes.BUS || type == VehicleTypes.TROLLEYBUS)
             return BusIcon;
         else if (type == VehicleTypes.TRAM)
             return TramIcon;
 
-        return CarIcon
+        return BusIcon
     }
 
-    const getStationCoord = (stationId) => {
+    const getSizeText = (size) => {
+
+        if(size == VehicleSizes.SMALL)
+            return 'Small';
+        else if (size == VehicleSizes.NORMAL)
+            return 'Normal';
+        else if (size == VehicleSizes.LARGE)
+            return 'Large';
+
+        return ''
+    }
+
+    const getStationCoord = (stop) => {
 
         return {
-            latitude: stations[stationId].coordinates[0],
-            longitude: stations[stationId].coordinates[1]
+            latitude: parseFloat(stop.stop_lat),
+            longitude: parseFloat(stop.stop_lon)
         }
     }
 
@@ -63,7 +77,7 @@ const Map = ({currentLocation, drivers, lines, stations, filter}) => {
                 case FilterTypes.SHOW_NEARBY:
                     if(currentLocation) {
                         setDriversArray(Object.values(drivers).filter(d =>
-                            getDistance({
+                            d.position && getDistance({
                                     latitude: currentLocation?.coords?.latitude,
                                     longitude: currentLocation?.coords?.longitude
                                 },
@@ -79,6 +93,10 @@ const Map = ({currentLocation, drivers, lines, stations, filter}) => {
                 case FilterTypes.HIDDEN:
                     setDriversArray([]);
                     break;
+                case FilterTypes.ROUTE:
+                    console.log(filter.routeFilter)
+                    setDriversArray(Object.values(drivers).filter(d => d.line == filter.routeFilter));
+                    break;
             }
         }
         else
@@ -87,11 +105,11 @@ const Map = ({currentLocation, drivers, lines, stations, filter}) => {
 
     }, [drivers, filter, currentLocation])
 
-    useEffect(() => {
-        if(lines != null) {
-            setLinesArray(Object.values(lines));
-        }
-    }, [lines])
+    // useEffect(() => {
+    //     if(lines != null) {
+    //         setLinesArray(Object.values(lines));
+    //     }
+    // }, [lines])
 
     useEffect(() => {
         // console.log(currentLocation);
@@ -122,9 +140,12 @@ const Map = ({currentLocation, drivers, lines, stations, filter}) => {
                     longitudeDelta: 0.005,
                 }}
             >
-                {origin && destination && (
+                {currentLocation && destination && (
                     <MapViewDirection
-                        origin={origin.description}
+                        origin={{
+                            latitude: currentLocation?.coords?.latitude,
+                            longitude: currentLocation?.coords?.longitude
+                        }}
                         destination={destination.description}
                         mode="TRANSIT"
                         apikey={GOOGLE_API_KEY}
@@ -163,48 +184,114 @@ const Map = ({currentLocation, drivers, lines, stations, filter}) => {
                     />
                 )}
 
-                {driversArray && driversArray.filter(d => d.position).map((driver, index) =>
-                    <Marker
-                        key={index}
-                        coordinate={{
-                            latitude: driver.position.latitude,
-                            longitude: driver.position.longitude
-                        }}
-                    >
-                        <Image
-                            source={getVehicleMarkerImage(driver.type)}
-                            style={{width: 80, height: 50, marginTop: 12}}
-                            resizeMode="center"
-                            resizeMethod="resize"
-                        />
-                        <Callout tooltip={false} style={styles.calloutContainer}>
-                            <Text>Size: {driver.size}</Text>
-                        </Callout>
-                    </Marker>
-                )}
+                {driversArray && routes && driversArray.filter(d => d.position).map((driver, index) => {
 
-                {linesArray && stations && linesArray.map((line,index) => {
-                    let waypoints = [];
-                    const startCoord = getStationCoord(line.stations[0]);
-                    for(let i = 1; i < line.stations.length; i++) {
-                        waypoints.push(
-                            getStationCoord(line.stations[i])
+                        let route = routes.find(r => r.route_id == driver.line)
+                        let driverRender = [];
+                        let driverTime = '';
+
+                        driverRender.push(
+                            <MapViewDirection
+                                origin={{
+                                    latitude: driver?.position?.latitude,
+                                    longitude: driver?.position?.longitude
+                                }}
+                                destination={{
+                                    latitude: currentLocation?.coords?.latitude,
+                                    longitude: currentLocation?.coords?.longitude
+                                }}
+                                apikey={GOOGLE_API_KEY}
+                                strokeWidth={0}
+                                onReady={results => {
+                                    setDriverTimes(current => ([...current, results.legs[0].duration.text]))
+                                }}
+                                onError={(errorMessage) => {
+                                    console.error(errorMessage);
+                                }}
+                            />
                         );
-                    }
 
-                    return (
-                        <MapViewDirection
-                            key={index}
-                            origin={startCoord}
-                            destination={startCoord}
-                            waypoints={waypoints}
-                            apikey={GOOGLE_API_KEY} // insert your API Key here
-                            strokeWidth={4}
-                            strokeColor={line.color}
-                            opacity={0.5}
-                        />
-                    )}
-                )}
+                        driverRender.push(
+                            <Marker
+                                key={index}
+                                coordinate={{
+                                    latitude: driver?.position?.latitude,
+                                    longitude: driver?.position?.longitude
+                                }}
+                            >
+                                <Image
+                                    source={getVehicleMarkerImage(driver.type)}
+                                    style={{width: 70, height: 70, marginTop:20}}
+                                    resizeMode="center"
+                                    resizeMethod="resize"
+                                />
+                                <Callout tooltip>
+                                    <View>
+                                        <View style={[styles.bubble, {
+                                            alignContent: 'center',
+                                            borderColor: `#${route?.route_color}`
+                                        }]}>
+                                            <Text style={[styles.route, {
+                                                backgroundColor: `#${route?.route_color}`,
+                                                color: `#${route?.route_text_color}`
+                                            }]}>{route?.route_short_name}</Text>
+                                            <Text style={{color: 'black', position:'absolute', right:8, fontSize:15}}>{driverTimes[index]}</Text>
+                                            {route &&
+                                                <Text style={{fontSize:12, paddingTop:10}}>{route.trips_array[0].trip_headsign} - {route.trips_array[1].trip_headsign}</Text>
+                                            }
+
+                                            <Text style={{fontSize:12, paddingTop:3}}>Size: {getSizeText(driver.size)}</Text>
+
+                                            {
+                                                driver.break &&
+                                                <Text style={{fontSize:12, paddingTop:3}}>On break: {driver.break.timeDuration} mins</Text>
+                                            }
+
+                                        </View>
+                                        <View style={[styles.arrowBorder, {borderTopColor: `#${route?.route_color}`}]}/>
+                                        <View style={[styles.arrow, {borderTopColor: `#${route?.route_color}`}]}/>
+                                    </View>
+                                </Callout>
+                                {/*<Callout tooltip={false} style={styles.calloutContainer}>*/}
+                                {/*    <Text>Size: {driver.size}</Text>*/}
+                                {/*</Callout>*/}
+                            </Marker>
+                        )
+                        return driverRender
+                    })
+                }
+
+                {displayedRoutes && displayedRoutes.map((route,index) => {
+                        let waypoints = [];
+
+                        const startCoord = getStationCoord(route.trips_array[0].stops_array[0]);
+
+                        for (let i = 0; i < route.trips_array.length; i++) {
+                            for (let j = 0; j < route.trips_array[i].stops_array.length; j++) {
+                                if (i == 0 && j == 0)
+                                    continue;
+
+                                waypoints.push(
+                                    getStationCoord(route.trips_array[i].stops_array[j])
+                                );
+                            }
+                        }
+
+                        return (
+                            <MapViewDirection
+                                key={index}
+                                origin={startCoord}
+                                destination={startCoord}
+                                waypoints={waypoints}
+                                splitWaypoints={true}
+                                apikey={GOOGLE_API_KEY} // insert your API Key here
+                                strokeWidth={4}
+                                strokeColor={`#${route.route_color}`}
+                                opacity={0.5}
+                            />
+                        )
+                    })
+                }
 
                 {stations && stations.map((station,index) => {
 
@@ -218,12 +305,18 @@ const Map = ({currentLocation, drivers, lines, stations, filter}) => {
                     >
                         <Image
                             source={BusMarker}
-                            style={{width: 85, height: 30, marginTop: 34}}
+                            style={{width: 40, height: 40}}
                             resizeMode="center"
                             resizeMethod="resize"
                         />
-                        <Callout tooltip={false} style={styles.calloutContainer}>
-                            <Text>{station.stop_name}</Text>
+                        <Callout tooltip>
+                            <View>
+                                <View style={[styles.bubble, {alignContent: 'center'}]}>
+                                    <Text style={styles.name}>{station.stop_name}</Text>
+                                </View>
+                                <View style={styles.arrowBorder}/>
+                                <View style={styles.arrow}/>
+                            </View>
                         </Callout>
                     </Marker>)
                 })}
@@ -245,7 +338,47 @@ const styles = StyleSheet.create({
         flex: 1
     },
 
-    calloutContainer: {
+    bubble: {
+        // flexDirection: 'row',
+        alignSelf: 'flex-start',
+        backgroundColor: '#fff',
+        borderRadius: 6,
+        borderColor: '#279032',
+        borderWidth: 6,
+        padding: 15,
+        width: 150,
+        marginTop: 30,
 
     },
+    name: {
+        fontSize: 15,
+        marginBottom: 5,
+        fontWeight: '600'
+    },
+    route: {
+        position: 'absolute',
+        left: -2,
+        top: -2,
+        fontSize: 15,
+        fontWeight: '600',
+        paddingVertical: 2,
+        paddingHorizontal: 4,
+        borderRadius: 4
+    },
+    arrow: {
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+        borderTopColor: '#279032',
+        borderWidth: 16,
+        alignSelf: 'center',
+        marginTop: -32
+    },
+    arrowBorder: {
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+        borderTopColor: '#279032',
+        borderWidth: 16,
+        alignSelf: 'center',
+        marginTop: -0.5
+    }
 })

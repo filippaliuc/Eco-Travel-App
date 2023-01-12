@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, Image, Platform, StatusBar} from 'react-native'
+import {StyleSheet, Text, View, Image, Platform, StatusBar, TouchableOpacity} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Map from "../../components/Map"
 import CustomInput from './CustomInput'
@@ -12,6 +12,8 @@ import FilterButton from "./FilterButton";
 import { Modal } from 'react-native'
 import {FilterTypes} from "../../models/filter";
 import FilterModal from "./FilterModal";
+import { setDestination } from '../../components/navSlice';
+
 
 let foregroundSubscription = null
 
@@ -22,7 +24,8 @@ const HomeScreen = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [drivers, setDrivers] = useState([]);
-    const [lines, setLines] = useState(null);
+    const [linesAll, setLinesAll] = useState([]);
+    const [selectedLine, setSelectedLine] = useState([]);
     const [stations, setStations] = useState([]);
     const [stationsAll, setStationsAll] = useState([]);
     const [filter, setFilter] = useState({
@@ -77,6 +80,25 @@ const HomeScreen = () => {
     // }, [])
 
     useEffect(() => {
+        const fetchLines = async () => {
+            try {
+                await fetch('https://api.opentransport.ro/gtfs/v1/route')
+                    .then((response) => response.json())
+                    .then((json) => setLinesAll(json))
+                    .catch((error) => console.error(error))
+
+            }
+            catch(error) {
+                console.error(error);
+            }
+        }
+
+        fetchLines().catch(console.error);
+    }, [])
+
+
+
+    useEffect(() => {
         const fetchStations = async () => {
             try {
                 await fetch('https://api.opentransport.ro/gtfs/v1/stop')
@@ -113,6 +135,21 @@ const HomeScreen = () => {
     }, [filter.stationsFilter, location]);
 
     useEffect(() => {
+
+        if(filter.routeFilter == 0) {
+            setSelectedLine([]);
+        }
+        else
+        {
+            fetch(`https://api.opentransport.ro/gtfs/v1/route/${filter.routeFilter}?include=stop`)
+                .then((response) => response.json())
+                .then((json) => setSelectedLine(json))
+                .catch((error) => console.error(error))
+        }
+
+    }, [filter.routeFilter]);
+
+    useEffect(() => {
         const requestPermissions = async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
@@ -147,16 +184,22 @@ const HomeScreen = () => {
 
   return (
   <View style={styles.container}>
-    <View style={{padding: 15, flex: 0}}>
-      {destination?.location && (
-        <CustomInput text="Pornire:" placeholder="Initial location" set="Origin" ></CustomInput>
-      )}
-      <CustomInput text="Destinatie:" placeholder="Destination" set="Destination"></CustomInput>
+    <View style={{padding: 15}}>
+      {/*{destination?.location && (*/}
+      {/*  <CustomInput text="Pornire:" placeholder="Initial location" set="Origin" ></CustomInput>*/}
+      {/*)}*/}
+      {/*  <View style={{width:340}}>*/}
+            <CustomInput text="Destinatie:" placeholder="Destination" set="Destination"></CustomInput>
+        {/*</View>*/}
+
+      {/*<TouchableOpacity style={styles.clear} onPress={() => setDestination(null)}><Text style={{color:'white', fontWeight:'bold'}}>Clear</Text></TouchableOpacity>*/}
       {/* <CustomButton text="Cauta" onPress={() => setShowStart(true)}></CustomButton> */}
     </View>
-      <Map styles={styles.map} currentLocation={location} drivers={drivers} lines={lines} stations={stations} filter={filter}/>
-      <FilterButton onPress={() => setShowFilterModal(true)} />
-      <FilterModal isVisible={showFilterModal} onClose={() => setShowFilterModal(false)} filter={filter} setFilter={setFilter}>
+      <Map styles={styles.map} currentLocation={location} drivers={drivers} stations={stations} filter={filter} routes={linesAll} displayedRoutes={selectedLine}/>
+      { linesAll &&
+          <FilterButton onPress={() => setShowFilterModal(true)} />
+      }
+      <FilterModal isVisible={showFilterModal} onClose={() => setShowFilterModal(false)} filter={filter} setFilter={setFilter} routes={linesAll}>
 
       </FilterModal>
     < NavigationBar></NavigationBar>
@@ -174,4 +217,15 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     backgroundColor: 'white'
   },
+    clear: {
+      backgroundColor: '#279032',
+        alignSelf:'center',
+        marginTop:15,
+        marginStart:3,
+        borderRadius:6,
+        alignContent: 'center',
+        justifyContent: 'center',
+        height:43,
+        paddingHorizontal: 10,
+    }
 })
