@@ -6,37 +6,49 @@ import BusIcon from "../../../assets/bus.png";
 import TramIcon from "../../../assets/tram.png";
 import CarIcon from "../../../assets/car.png";
 import {FilterOptions, FilterTypes} from "../../models/filter";
-import ProximityFilter from "./ProximityFilter";
+import StationsFilter from "./StationsFilter";
 import RouteFilter from "./RouteFilter";
+import VehiclesFilter from "./VehiclesFilter";
 
 const list = [
     {
         key: FilterOptions.FILTER_ROUTE,
         name: 'Route',
-        avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
     },
     {
         key: FilterOptions.FILTER_VEHICLES,
         name: 'Vehicles',
-        avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
     },
     {
         key: FilterOptions.FILTER_STATIONS,
         name: 'Stations',
-        avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
     }
 ]
 
-const Filter = ({itemStyle, filter, setFilter}) => {
+const Filter = ({itemStyle, filter, setFilter, routes}) => {
 
     const [filterOption, setFilterOption] = useState(FilterOptions.DEFAULT);
+
+    const getRouteFilterText = (route_id) =>
+    {
+        if(route_id == 0) {
+            return 'Hidden';
+        }
+        else if(route_id == 1) {
+            return 'Show All';
+        }
+        else
+            return routes.find(r => r.route_id == route_id).route_long_name;
+    }
 
     const getFilterText = (item) => {
 
         let filterType;
 
         if(item.name == 'Route')
-            filterType = filter.routeFilter;
+        {
+            return getRouteFilterText(filter.routeFilter)
+        }
         else if(item.name == 'Vehicles')
             filterType = filter.vehiclesFilter;
         else if(item.name == 'Stations')
@@ -48,6 +60,8 @@ const Filter = ({itemStyle, filter, setFilter}) => {
             return 'Show Nearby';
         else if (filterType == FilterTypes.HIDDEN)
             return 'Hidden';
+        else if (filterType == FilterTypes.ROUTE)
+            return 'Show on Selected Route';
 
         return ''
     }
@@ -64,6 +78,12 @@ const Filter = ({itemStyle, filter, setFilter}) => {
             setFilter(prevState => ({
                 ...prevState,
                 stationsFilter: type,
+            }));
+        }
+        else if(option == FilterOptions.FILTER_ROUTE) {
+            setFilter(prevState => ({
+                ...prevState,
+                routeFilter: type,
             }));
         }
 
@@ -89,15 +109,15 @@ const Filter = ({itemStyle, filter, setFilter}) => {
             )
         case FilterOptions.FILTER_ROUTE:
             return (
-               <RouteFilter/>
+               <RouteFilter itemStyle={itemStyle} routes={routes} onSelected={(route_id) => onFilterSelect(FilterOptions.FILTER_ROUTE, route_id)}/>
             )
         case FilterOptions.FILTER_VEHICLES:
             return (
-                <ProximityFilter itemStyle={itemStyle} onSelected={(type) => onFilterSelect(FilterOptions.FILTER_VEHICLES, type)}/>
+                <VehiclesFilter itemStyle={itemStyle} onSelected={(type) => onFilterSelect(FilterOptions.FILTER_VEHICLES, type)}/>
             )
         case FilterOptions.FILTER_STATIONS:
             return (
-                <ProximityFilter itemStyle={itemStyle} onSelected={(type) => onFilterSelect(FilterOptions.FILTER_STATIONS, type)}/>
+                <StationsFilter itemStyle={itemStyle} onSelected={(type) => onFilterSelect(FilterOptions.FILTER_STATIONS, type)}/>
             )
     }
 

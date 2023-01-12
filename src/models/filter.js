@@ -2,6 +2,7 @@ export const FilterTypes = {
     SHOW_ALL: 0,
     SHOW_NEARBY: 1,
     HIDDEN: 2,
+    ROUTE: 3
 };
 
 export const FilterOptions = {
