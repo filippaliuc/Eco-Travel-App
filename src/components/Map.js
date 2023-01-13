@@ -8,14 +8,11 @@ import MapViewDirection from "react-native-maps-directions"
 import { GOOGLE_API_KEY } from '@env'
 import BusIcon from "../../assets/bus.png";
 import TramIcon from "../../assets/tram.png";
-import CarIcon from "../../assets/car.png";
 import BusMarker from "../../assets/bus-marker.png";
-import TramMarker from "../../assets/tram-marker.png";
 import {VehicleTypes, VehicleSizes} from "../models/vehicle";
 import {mapStyle} from './mapStyle'
 import {getDistance} from "geolib";
 import {FilterTypes} from "../models/filter";
-
 
 const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoutes}) => {
 
@@ -23,6 +20,7 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     const destination = useSelector(selectDestination);
     const mapRef = useRef(null);
     const [driverTimes, setDriverTimes] = useState([]);
+    const [googleDirections, setGoogleDirections] = useState()
     
     const mapViewDirectionRef = useRef(null);
 
@@ -64,6 +62,69 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
 
     const markerClick = () => {
         console.log("Marker was clicked");
+    }
+
+    useEffect(() => {
+
+        const org = `${currentLocation?.coords?.latitude},${currentLocation?.coords?.longitude}`
+        let mode = 'transit'
+        if(destination){
+            fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${org}&destination=${destination.description}&mode=${mode}&key=${GOOGLE_API_KEY}`)
+                .then((response) => response.json())
+                .then((json) => {
+                    // console.log(json.routes[0].legs[0].steps[0].travel_mode)
+                    // console.log(json.routes[0])
+                    setGoogleDirections(json)
+                }
+                )
+                .catch((error) => console.error(error))
+        }
+    }, [currentLocation,destination])
+
+    function test (index) {
+        let lineColor
+        let dashedline
+        const directionSteps = googleDirections.routes[0].legs[0].steps
+        let finalDirection =[]
+        for(let i=0; i<directionSteps.length; i++){
+            const type = directionSteps[i].travel_mode
+            if(type === 'WALKING'){
+                lineColor = 'green'
+                dashedline = [20,30]
+            } else if (type === "TRANSIT"){
+                lineColor = '#3466EF'
+                dashedline = []
+            }
+            let aditionalStepsExists = directionSteps[i].steps
+            if(!aditionalStepsExists){
+                finalDirection.push(
+                    <MapViewDirection
+                        origin={`${directionSteps[i].start_location.lat},${directionSteps[i].start_location.lng}`}
+                        destination={`${directionSteps[i].end_location.lat},${directionSteps[i].end_location.lng}`}
+                        apikey={GOOGLE_API_KEY}
+                        strokeWidth={5}
+                        strokeColor={lineColor}
+                        mode={type.toUpperCase()}
+                    />
+                )
+            } else {
+                let aditionalSteps = directionSteps[i].steps
+                for(let y=0; y<aditionalSteps.length; y++){
+                    finalDirection.push(
+                        <MapViewDirection
+                            origin={`${aditionalSteps[y].start_location.lat},${aditionalSteps[y].start_location.lng}`}
+                            destination={`${aditionalSteps[y].end_location.lat},${aditionalSteps[y].end_location.lng}`}
+                            apikey={GOOGLE_API_KEY}
+                            strokeWidth={5}
+                            strokeColor={lineColor}
+                            lineDashPattern={dashedline}
+                            mode={type.toUpperCase()}
+                        />
+                    )
+                }
+            }
+        }
+        return finalDirection
     }
 
     useEffect(() => {
@@ -112,8 +173,7 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     // }, [lines])
 
     useEffect(() => {
-        // console.log(currentLocation);
-        // console.log(destination)
+
         if(!destination) {
             setLat(currentLocation?.coords.latitude);
             setLng(currentLocation?.coords.longitude);
@@ -140,7 +200,8 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                     longitudeDelta: 0.005,
                 }}
             >
-                {currentLocation && destination && (
+                {googleDirections && test(0)}
+                {/* {currentLocation && destination && (
                     <MapViewDirection
                         origin={{
                             latitude: currentLocation?.coords?.latitude,
@@ -158,7 +219,7 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                               });
                         }}
                     />
-                )}
+                )} */}
                 {destination?.location && (
                     <Marker
                         coordinate={{

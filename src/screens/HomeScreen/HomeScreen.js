@@ -13,7 +13,7 @@ import { Modal } from 'react-native'
 import {FilterTypes} from "../../models/filter";
 import FilterModal from "./FilterModal";
 import { setDestination } from '../../components/navSlice';
-
+import {GOOGLE_API_KEY} from '@env'
 
 let foregroundSubscription = null
 
@@ -94,6 +94,7 @@ const HomeScreen = () => {
         }
 
         fetchLines().catch(console.error);
+        // console.log(linesAll[0])
     }, [])
 
 
@@ -199,6 +200,7 @@ const HomeScreen = () => {
       { linesAll &&
           <FilterButton onPress={() => setShowFilterModal(true)} />
       }
+
       <FilterModal isVisible={showFilterModal} onClose={() => setShowFilterModal(false)} filter={filter} setFilter={setFilter} routes={linesAll}>
 
       </FilterModal>

@@ -36,7 +36,7 @@ const CustomInput = ({text, placeholder, set}) => {
             enablePoweredByContainer={false}
             minLength={2}
             onPress={(data, details = null) => {
-              // console.log(data)
+              console.log(data.place_id)
               setDispatch(data, details)
             }}
             query={{
