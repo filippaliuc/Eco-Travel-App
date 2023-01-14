@@ -14,6 +14,7 @@ import {FilterTypes} from "../../models/filter";
 import FilterModal from "./FilterModal";
 import { setDestination } from '../../components/navSlice';
 import {GOOGLE_API_KEY} from '@env'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 let foregroundSubscription = null
 
@@ -184,13 +185,13 @@ const HomeScreen = () => {
     }
 
   return (
-  <View style={styles.container}>
+  <SafeAreaView style={styles.container}>
     <View style={{padding: 15}}>
       {/*{destination?.location && (*/}
       {/*  <CustomInput text="Pornire:" placeholder="Initial location" set="Origin" ></CustomInput>*/}
       {/*)}*/}
       {/*  <View style={{width:340}}>*/}
-            <CustomInput text="Destinatie:" placeholder="Destination" set="Destination"></CustomInput>
+            <CustomInput text="Destinatie:" placeholder="Destinatie" set="Destination"></CustomInput>
         {/*</View>*/}
 
       {/*<TouchableOpacity style={styles.clear} onPress={() => setDestination(null)}><Text style={{color:'white', fontWeight:'bold'}}>Clear</Text></TouchableOpacity>*/}
@@ -205,7 +206,7 @@ const HomeScreen = () => {
 
       </FilterModal>
     < NavigationBar></NavigationBar>
-  </View>
+  </SafeAreaView>
   )
   
 }

@@ -28,7 +28,6 @@ const CustomInput = ({text, placeholder, set}) => {
 
   return (
     <View>
-        <Text style={styles.text}>{text}</Text>
           <GooglePlacesAutocomplete
             styles={{textInput: styles.inputGoogle, container: {flex: 0}}}
             placeholder={placeholder}

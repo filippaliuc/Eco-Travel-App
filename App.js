@@ -45,8 +45,8 @@ export default function App() {
             headerShown: false
           }}
         >
-          <Stack.Screen name="HomeScreen" component={HomeScreen} />
           <Stack.Screen name="LogInScreen" component={LogInScreen} />
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
           <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
           <Stack.Screen name="DriverScreen" component={DriverScreen} />
           <Stack.Screen name="AccountDetailsScreen" component={AccountDetailsScreen} />

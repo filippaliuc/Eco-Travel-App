@@ -7,7 +7,7 @@ import Stripe from 'stripe'
 
 const app = express();
 const port = 3000;
-const ipAddress = '192.168.1.6';
+const ipAddress = '192.168.43.41';
 
 const STRIPE_SK = "sk_test_51MMYuXKVO8NcwZ1f65HzG3GLr11SkDBBoejiiaDeLPKyD3i2l8tdtrlQYFerD5WFqJXX3ndxwJx4igN5NsJahXNp00lxHpG6gw"
 const stripe = Stripe(STRIPE_SK,{apiVersion: "2022-11-15"});
