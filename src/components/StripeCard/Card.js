@@ -9,7 +9,7 @@ import { ticketsData } from '../../models/ticketsData'
 import { busPassData } from '../../models/busPassData'
 
 
-const API_URL = "http://192.168.43.41:3000"
+const API_URL = "http://192.168.100.5:3000"
 
 const STRIPE_PK = 'pk_test_51MMYuXKVO8NcwZ1fSkRFO3NB9RnbEvRyhHZofipYYkFQ8mjPoNTatgbfVFzxvjtRTdmlV73mxaVG2NsCepIxbxZP0047AuCHDZ'
 
