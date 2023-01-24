@@ -21,7 +21,7 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     const destination = useSelector(selectDestination);
     const googleDirection = useSelector(selectGoogleDirection);
 
-    const mapRef = useRef(null);
+    const mapRef = useRef();
     const [driverTimes, setDriverTimes] = useState([]);
     
     const [directionStart, setDirectionStart] = useState([])
@@ -35,10 +35,10 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     const [linesArray,setLinesArray ] = useState([]);
 
     const edgePadding = {
-        top: 10,
-        right: 10,
-        bottom: 10,
-        left: 10
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
     }
 
     const getVehicleMarkerImage = (type) => {
@@ -195,9 +195,23 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
         return null
     }
 
-    const fitMapView = () => {
-        if(directionStart && directionEnd){
-            mapRef.current?.fitToCoordinates([directionStart,directionEnd], {edgePadding})
+    async function fitMapView () {
+        let coords
+        console.log(currentLocation)
+        console.log(destination)
+        if(origin == null){
+            coords = [
+                { latitude: currentLocation.coords.latitude, longitude: currentLocation.coords.longitude },
+                { latitude: destination.location.lat, longitude: destination.location.lng }
+            ]
+            
+            mapRef.current.fitToCoordinates(coords, {edgePadding})
+        } else {
+            coords = [
+                { latitude: origin.location.lat, longitude: origin.location.lng },
+                { latitude: destination.location.lat, longitude: destination.location.lng }
+            ]
+            mapRef.current.fitToCoordinates(coords, {edgePadding})
         }
     }
 
@@ -212,7 +226,7 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                 )} */}
                 <MapView
                     customMapStyle={mapStyle}
-                    ref={(ref) => mapRef=ref}
+                    ref={mapRef}
                     style={styles.map}
                     provider={PROVIDER_GOOGLE}
                     showsUserLocation={true}

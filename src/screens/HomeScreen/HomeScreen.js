@@ -83,7 +83,7 @@ const HomeScreen = () => {
                     // console.log(json.routes[0].legs[0].steps[0].travel_mode)
                     // console.log(json.routes[0])r
                     dispatch(setGoogleDirection(json))
-                    console.log(json)
+                    // console.log(json)
                 }
                 )
                 .catch((error) => {
@@ -281,12 +281,20 @@ const HomeScreen = () => {
         let routeInfo = []
         if(googleDirection != null){
             const directionSteps = googleDirection.routes[0].legs[0].steps
-            let timeIncrement = departureTime
             let time = departureTime
             for(let i=0; i<directionSteps.length; i++){
                 let travel_mode = directionSteps[i].travel_mode;
                 let uri = `http:${directionSteps[i].transit_details?.line?.vehicle?.icon}`
                 let vehicleName = directionSteps[i].transit_details?.line?.short_name
+                let vehicleDepartureTime = directionSteps[i].transit_details?.departure_time.text
+                if(i > 0){
+                    if(vehicleDepartureTime != null){
+                        time = moment(vehicleDepartureTime,"HH:mm").format("HH:mm")
+                    } else {
+                        time = moment(time,"HH:mm").add((moment(directionSteps[i].duration.text,"mm").format("mm")),'minutes').format("HH:mm")
+                    }
+                    console.log(directionSteps[i].duration.text)
+                }
                 routeDetails.push({
                     key: i,
                     arrivalTime: time,
@@ -296,13 +304,11 @@ const HomeScreen = () => {
                     travel_mode: travel_mode,
                     uri: uri
                 })
-                time = moment(timeIncrement,"HH:mm").add((moment(directionSteps[i].duration.text,"mm").format("mm")),'minutes').format("HH:mm")
-                timeIncrement = time
                 if(travel_mode === 'WALKING'){
                     routeInfo.push(
                         <View style={styles.directionItemsContainer}>
                             <FontAwesome5 name="walking" size={24} color="black" />
-                            <Text>{travel_mode}</Text>
+                            <Text>Mergi</Text>
                         </View>
                     )
                 } else {
@@ -363,9 +369,9 @@ const HomeScreen = () => {
                 </View>
             )
         }
-    }
+    }   
 
-    return (
+    return (    
     <SafeAreaView style={styles.container}>
         <View style={{padding: 15}}>
             {destination?.location && (

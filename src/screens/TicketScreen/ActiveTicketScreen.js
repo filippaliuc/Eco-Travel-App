@@ -21,9 +21,11 @@ const ActiveTickestScreen = ({}) => {
     const userRef = ref(database, 'users/' + userId + '/tickets')
     onValue(userRef, (snapshot) => {
       let data = snapshot.val()
-      setTicketsList(Object.keys(data).map((key) =>  ({
-        ...data[key],
-      })))
+      if(data){
+        setTicketsList(Object.keys(data).map((key) =>  ({
+          ...data[key],
+        })))
+      }
     })
     
   }
