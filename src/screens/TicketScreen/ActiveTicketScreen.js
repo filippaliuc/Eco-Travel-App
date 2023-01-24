@@ -115,5 +115,5 @@ const styles = StyleSheet.create({
     },
     dialog: {
       alignItems: 'center',
-    }
+    },
 })

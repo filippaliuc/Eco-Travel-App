@@ -37,7 +37,7 @@ const Card = ({showCard, hideCard, cardType, selectedId}) => {
     useEffect(() => {
         if(cardType === "Ticket")
         { 
-            if(getId()){
+            if(getId() != null){
                 setPrice(ticketsData[getId() - 1].price)
                 setTicketType(ticketsData[getId()-1].name) 
             }
