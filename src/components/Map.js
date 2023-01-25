@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from 'react'
 import { Marker, Callout, Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
 import MapView from "react-native-map-clustering";
 import { useSelector } from 'react-redux'
-import { selectDestination, selectOrigin, setOrigin } from './navSlice'
+import { selectDestination, selectOrigin, selectGoogleDirection } from './navSlice'
 import MapViewDirection from "react-native-maps-directions"
 import { GOOGLE_API_KEY } from '@env'
 import BusIcon from "../../assets/bus.png";
@@ -14,26 +14,32 @@ import {mapStyle} from './mapStyle'
 import {getDistance} from "geolib";
 import {FilterTypes} from "../models/filter";
 
+
 const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoutes}) => {
 
     const origin = useSelector(selectOrigin);
     const destination = useSelector(selectDestination);
-    const mapRef = useRef(null);
+    const googleDirection = useSelector(selectGoogleDirection);
+
+    const mapRef = useRef();
     const [driverTimes, setDriverTimes] = useState([]);
-    const [googleDirections, setGoogleDirections] = useState()
+    
     const [directionStart, setDirectionStart] = useState([])
     const [directionEnd, setDirectionEnd] = useState([])
     const [arrivalTime, setArrivaltime] = useState()
     const [departureTime, setDepartureTime] = useState()
     const [transportType, setTransportType] = useState()
-    
-    const mapViewDirectionRef = useRef(null);
-
-    const [lat, setLat] = useState(43);
-    const [lng, setLng] = useState(42);
+    const [originMarker, setOriginMarker] = useState(0)
 
     const [driversArray,setDriversArray ] = useState([]);
     const [linesArray,setLinesArray ] = useState([]);
+
+    const edgePadding = {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
+    }
 
     const getVehicleMarkerImage = (type) => {
 
@@ -66,43 +72,28 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     }
 
     useEffect(() => {
-        if(googleDirections){
+        // console.log(googleDirections)
+        if(googleDirection != null){
             setDirectionStart([{
-                latitude: googleDirections.routes[0].legs[0].start_location.lat,
-                longitude: googleDirections.routes[0].legs[0].start_location.lng
+                latitude: googleDirection.routes[0].legs[0].start_location.lat,
+                longitude: googleDirection.routes[0].legs[0].start_location.lng
             }])
             setDirectionEnd([{
-                latitude: googleDirections.routes[0].legs[0].end_location.lat,
-                longitude: googleDirections.routes[0].legs[0].end_location.lng
+                latitude: googleDirection.routes[0].legs[0].end_location.lat,
+                longitude: googleDirection.routes[0].legs[0].end_location.lng
             }])
-            setArrivaltime(googleDirections.routes[0].legs[0].arrival_time.text)
-            setDepartureTime(googleDirections.routes[0].legs[0].departure_time.text)
+            setArrivaltime(googleDirection.routes[0].legs[0].arrival_time.text)
+            setDepartureTime(googleDirection.routes[0].legs[0].departure_time.text)
         }
-    
-    }, [googleDirections])
-    
+    }, [googleDirection])
 
     useEffect(() => {
-
-        const org = `${currentLocation?.coords?.latitude},${currentLocation?.coords?.longitude}`
-        let mode = 'transit'
-        if(destination){
-            fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${org}&destination=${destination.description}&mode=${mode}&key=${GOOGLE_API_KEY}`)
-                .then((response) => response.json())
-                .then((json) => {
-                    // console.log(json.routes[0].legs[0].steps[0].travel_mode)
-                    // console.log(json.routes[0])
-                    setGoogleDirections(json)
-                    console.log(json)
-                }
-                )
-                .catch((error) => {
-                    console.error(error)
-                })
+        if(origin) {
+            setOriginMarker(1)
+        } else {
+            setOriginMarker(0)
         }
-    }, [currentLocation,destination])
-
-   
+    }, [currentLocation,destination,origin])
 
     useEffect(() => {
 
@@ -132,7 +123,7 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                     setDriversArray([]);
                     break;
                 case FilterTypes.ROUTE:
-                    console.log(filter.routeFilter)
+                    // console.log(filter.routeFilter)
                     setDriversArray(Object.values(drivers).filter(d => d.line == filter.routeFilter));
                     break;
             }
@@ -149,26 +140,13 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     //     }
     // }, [lines])
 
-    useEffect(() => {
-
-        if(!destination) {
-            setLat(currentLocation?.coords.latitude);
-            setLng(currentLocation?.coords.longitude);
-        } 
-    }, [currentLocation]);
-
-    useEffect(() => {
-        setLat(destination?.location.lat);
-        setLng(destination?.location.lng);
-    }, [destination]);
-
     function getDirection () {
-        if(googleDirections){
+        let finalDirection =[]
+        if(googleDirection != null){
             let lineColor
             let dashedline
-            let finalDirection =[]
 
-            const directionSteps = googleDirections.routes[0].legs[0].steps
+            const directionSteps = googleDirection.routes[0].legs[0].steps
             
 
             for(let i=0; i<directionSteps.length; i++){
@@ -211,28 +189,50 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                     }
                 }
             }
+            fitMapView()
             return finalDirection
+        } else 
+        return null
+    }
+
+    async function fitMapView () {
+        let coords
+        console.log(currentLocation)
+        console.log(destination)
+        if(origin == null){
+            coords = [
+                { latitude: currentLocation.coords.latitude, longitude: currentLocation.coords.longitude },
+                { latitude: destination.location.lat, longitude: destination.location.lng }
+            ]
+            
+            mapRef.current.fitToCoordinates(coords, {edgePadding})
+        } else {
+            coords = [
+                { latitude: origin.location.lat, longitude: origin.location.lng },
+                { latitude: destination.location.lat, longitude: destination.location.lng }
+            ]
+            mapRef.current.fitToCoordinates(coords, {edgePadding})
         }
     }
 
     if(currentLocation != null) {
         return (
             <View flex={1}>
-                {destination && (
+                {/* {destination && (
                     <View>
                         <Text style={styles.timeDetailsText}>Pleaca la {departureTime}</Text>
                         <Text style={styles.timeDetailsText}>Ajunge la {arrivalTime}</Text>
                     </View>
-                )}
+                )} */}
                 <MapView
                     customMapStyle={mapStyle}
-                    ref={(ref) => mapRef=ref}
+                    ref={mapRef}
                     style={styles.map}
                     provider={PROVIDER_GOOGLE}
                     showsUserLocation={true}
                     initialRegion={{
-                        latitude: 45.74767,
-                        longitude: 21.22636,
+                        latitude: currentLocation?.coords?.latitude,
+                        longitude: currentLocation?.coords?.longitude,
                         latitudeDelta: 0.005,
                         longitudeDelta: 0.005,
                     }}
@@ -278,10 +278,9 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                             title="Origin"
                             description={origin.description}
                             identifier="origin"
-                            opacity={1}
+                            opacity={originMarker}
                         />
                     )}
-    
                     {driversArray && routes && driversArray.filter(d => d.position).map((driver, index) => {
     
                             let route = routes.find(r => r.route_id == driver.line)

@@ -6,21 +6,24 @@ import { useDispatch } from 'react-redux';
 import { setDestination, setOrigin } from '../../components/navSlice';
 
 
-const CustomInput = ({text, placeholder, set}) => {
+const CustomInput = ({placeholder, set}) => {
   
   const dispatch = useDispatch();
 
   const setDispatch = (data, details) => {
+    // console.log(data)
     if(set === "Origin") {
       dispatch(setOrigin({
         location: details.geometry.location,
         description: data.description,
+        place_id: data.place_id
       }));
       setDestination(null);
     } else {
       dispatch(setDestination({
         location: details.geometry.location,
         description: data.description,
+        place_id: data.place_id
       }));
       setOrigin(null);
     }
@@ -35,14 +38,14 @@ const CustomInput = ({text, placeholder, set}) => {
             enablePoweredByContainer={false}
             minLength={2}
             onPress={(data, details = null) => {
-              console.log(data.place_id)
-              setDispatch(data, details)
+              setDispatch(data, details);
+              console.log(data)
             }}
             query={{
               key: GOOGLE_API_KEY,
               language: 'en', 
             }}
-            nearbyPlacesAPI="GooglePlacesSearch"
+            // nearbyPlacesAPI="GooglePlacesSearch"
             debounce={400}
           />
     </View>

@@ -39,7 +39,7 @@ const AccountDetailsScreen = () => {
         <View style={styles.buttonsContainer}>
           <CustomButton text={`User: ${user}`} type={'list'}/>
           <CustomButton text={'Tichete valide'} type={'list'} onPress={ ()=>  navigation.navigate("ActiveTicketScreen")}/>
-          <CustomButton text={'Abonamente'} type={'list'}/>
+          <CustomButton text={'Abonamente'} type={'list'} onPress={ ()=>  navigation.navigate("ActiveSubscriptions")}/>
           <CustomButton text={'Notificari'} type={'list'}/>
           <View style={{justifyContent: 'flex-end', flex: 1}}>
             <CustomButton text={'LogOut'} type={'logout'} onPress={() => handleLogOut()}/>

@@ -4,9 +4,10 @@ import { CardField, initStripe, StripeProvider, useConfirmPayment } from '@strip
 import Dialog from "react-native-dialog"
 import { auth, database } from "../../../firebase"
 import { child, onValue, ref, push, update, remove } from '@firebase/database'
-import { getId } from '../CustomFlatList'
+import { selectTicketsId } from '../navSlice'
 import { ticketsData } from '../../models/ticketsData'
 import { busPassData } from '../../models/busPassData'
+import { useSelector } from 'react-redux'
 
 
 const API_URL = "http://192.168.100.5:3000"
@@ -14,6 +15,8 @@ const API_URL = "http://192.168.100.5:3000"
 const STRIPE_PK = 'pk_test_51MMYuXKVO8NcwZ1fSkRFO3NB9RnbEvRyhHZofipYYkFQ8mjPoNTatgbfVFzxvjtRTdmlV73mxaVG2NsCepIxbxZP0047AuCHDZ'
 
 const Card = ({showCard, hideCard, cardType, selectedId}) => {
+
+    const ticketsId = useSelector(selectTicketsId)
 
     const [userId, setUserId] = useState(null)
     const [username, setUsername] = useState('')
@@ -37,9 +40,9 @@ const Card = ({showCard, hideCard, cardType, selectedId}) => {
     useEffect(() => {
         if(cardType === "Ticket")
         { 
-            if(getId()){
-                setPrice(ticketsData[getId() - 1].price)
-                setTicketType(ticketsData[getId()-1].name) 
+            if(ticketsId){
+                setPrice(ticketsData[ticketsId - 1].price)
+                setTicketType(ticketsData[ticketsId - 1].name) 
             }
         } else if (cardType === "Subscription") {
             if(selectedId){

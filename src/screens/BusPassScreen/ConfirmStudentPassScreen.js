@@ -7,6 +7,8 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 import { SelectList } from 'react-native-dropdown-select-list';
 import CustomView from './CustomView';
 import Toast from 'react-native-root-toast';
+import { child, ref, push, update } from '@firebase/database'
+import { database, auth } from '../../../firebase';
 
 const data = [
   {key: '1', value:"student"},
@@ -22,9 +24,7 @@ const ConfirmStudentPassScreen = ({}) => {
   const [studentCard, setStudentCard] = useState(null)
   const [isUploaded, setIsUploaded] = useState(false)
 
-  console.log("Buletin " + identityCard)
-  console.log("Transport " + transporCard)
-  console.log("Student " + studentCard)
+  const userId = auth.currentUser?.uid
 
   useEffect(() => {
     if(selectedValue === 'student' && identityCard && studentCard && transporCard){
@@ -79,6 +79,23 @@ const ConfirmStudentPassScreen = ({}) => {
     });
   }
 
+  function writeSubscriptionToDB(){
+    const date = new Date();
+
+    const postData = {
+        date: date,
+        type: 'student',
+        state: 'In asteptare',
+    };
+    const newPostKey = push(child(ref(database),'posts')).key;
+
+    const updates = {}
+    updates['users/' + userId + '/subscriptions/' + newPostKey] = postData;
+
+    update(ref(database), updates)
+    showNotUploadedToast()
+  }
+
   function showUploadedToast () {
     Toast.show('Ati incarcat cu succes', {
       duration: Toast.durations.LONG,
@@ -115,7 +132,7 @@ const ConfirmStudentPassScreen = ({}) => {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.buttons}
-            onPress={isUploaded? () => showUploadedToast() : () => showNotUploadedToast()} 
+            onPress={isUploaded? () => writeSubscriptionToDB() : () => showNotUploadedToast()} 
           >
             <Text style={{fontSize: 20, color: 'white', fontWeight:"500"}}>  Incarca</Text>
             <Ionicons name="chevron-forward" size={23} color="white"/>

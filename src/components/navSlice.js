@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     origin: null,
     destination: null,
-    travelTimeInformation: null,
+    googleDirection: null,
+    ticketsId: null,
 }
 
 export const navSlice = createSlice ({
@@ -16,18 +17,23 @@ export const navSlice = createSlice ({
         setDestination: (state, action) => {
             state.destination = action.payload;
         },
-        setTravelTimeInformation: (state, action) => {
-            state.travelTimeInformation= action.payload;
+        setGoogleDirection: (state, action) => {
+            state.googleDirection = action.payload;
+        },
+        setTicketsId: (state, action) => {
+            state.ticketsId = action.payload;
         },
     },
 });
 
-export const { setOrigin, setDestination, setTravelTimeInformation} = navSlice.actions;
+export const { setOrigin, setDestination, setGoogleDirection, setTicketsId} = navSlice.actions;
 
 //Selectors
 
 export const selectOrigin = (state) => state.nav.origin;
 export const selectDestination = (state) => state.nav.destination;
-export const selectTravelTimeInformation = (state) => state.nav.travelTimeInformation;
+export const selectGoogleDirection = (state) => state.nav.googleDirection;
+export const selectTicketsId = (state) => state.nav.ticketsId;
+
 
 export default navSlice.reducer;

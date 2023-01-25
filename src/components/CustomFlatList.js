@@ -1,22 +1,16 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 import { auth, database } from "../../firebase"
 import { ref, onValue } from 'firebase/database';
 import { busPassData } from '../models/busPassData';
-
-let id = null;
-function setId(key) {
-    id = key;
-}
-
-export function getId() {
-    return id
-}
+import { setTicketsId } from './navSlice';
 
 const CustomFlatList = ({data, isTicket, showToast, showCard}) => {
 
     const navigation = useNavigation();
+    const dispatch = useDispatch();
     const [selectedId, setSelectedId] = useState(null)
     const [nrOfActiveTickets, setNrOfActiveTickets] = useState(0)
 
@@ -56,7 +50,7 @@ const CustomFlatList = ({data, isTicket, showToast, showCard}) => {
         return (
             <Item
                 item={item}
-                onPress={() => {setSelectedId(item.key);setId(item.key);}}
+                onPress={() => {setSelectedId(item.key);dispatch(setTicketsId(item.key));}}
                 borderColor={{ borderColor }}
                 elevation={{ elevation }}
                 shadowOpacity={{ shadowOpacity }}
