@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         opacity: 1,
         position: 'absolute',
-        top: (Platform.OS === "android" ? StatusBar.currentHeight : 0) + 190,
+        top: (Platform.OS === "android" ? StatusBar.currentHeight : 0) + 155,
         right: 8
     },
 
