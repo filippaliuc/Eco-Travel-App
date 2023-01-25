@@ -17,6 +17,7 @@ const ActiveTickestScreen = ({}) => {
     readTickets(userId)
   },[])
   
+  console.log(ticketsList)
   const readTickets = (userId) => {
     const userRef = ref(database, 'users/' + userId + '/tickets')
     onValue(userRef, (snapshot) => {

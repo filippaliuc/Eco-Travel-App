@@ -17,6 +17,7 @@ import { store } from './store';
 import DriverScreen from "./src/screens/DriverScreen/DriverScreen";
 import { getAuth, onAuthStateChanged } from "firebase/auth"
 import ActiveTicketScreen from './src/screens/TicketScreen/ActiveTicketScreen';
+import ActiveSubscriptions from './src/screens/BusPassScreen/ActiveSubscriptions';
 
 
 const Stack = createNativeStackNavigator();
@@ -55,6 +56,7 @@ export default function App() {
           <Stack.Screen name="ConfirmStandardPassScreen" component={ConfirmStandardPassScreen} />
           <Stack.Screen name="TicketScreen" component={TicketScreen} />
           <Stack.Screen name="ActiveTicketScreen" component={ActiveTicketScreen} />
+          <Stack.Screen name="ActiveSubscriptions" component={ActiveSubscriptions} />
           <Stack.Screen name="LinesScreen" component={LinesScreen} />
         </Stack.Navigator>
       </NavigationContainer>
