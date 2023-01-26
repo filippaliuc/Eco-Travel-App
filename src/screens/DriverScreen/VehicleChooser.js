@@ -76,10 +76,10 @@ const VehicleChooser = ({vehicle, setVehicle, routes, setTitleText}) => {
         return (
             <View style={styles.container}>
                 <TouchableOpacity
-                    onPress={() => { onVehicleTypeSelect(VehicleTypes.BUS); setTitleText('Choose your route:') }}
+                    onPress={() => { onVehicleTypeSelect(VehicleTypes.BUS); setTitleText('Alege ruta:') }}
                     style={[styles.type]}
-                    onLongPress={() => { setTitleText('Bus') }}
-                    onPressOut={() => { setTitleText('Choose your vehicle:') }}
+                    onLongPress={() => { setTitleText('Autobuz') }}
+                    onPressOut={() => { setTitleText('Alege un vehicul:') }}
                     delayLongPress={200}
                 >
                     <Image
@@ -90,10 +90,10 @@ const VehicleChooser = ({vehicle, setVehicle, routes, setTitleText}) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => { onVehicleTypeSelect(VehicleTypes.TROLLEYBUS); setTitleText('Choose your route:') }}
+                    onPress={() => { onVehicleTypeSelect(VehicleTypes.TROLLEYBUS); setTitleText('Alege ruta:') }}
                     style={[styles.type]}
-                    onLongPress={() => { setTitleText('Trolleybus') }}
-                    onPressOut={() => { setTitleText('Choose your vehicle:') }}
+                    onLongPress={() => { setTitleText('Troleibuz') }}
+                    onPressOut={() => { setTitleText('Alege un vehicul:') }}
                     delayLongPress={200}
                 >
                     <Image
@@ -104,10 +104,10 @@ const VehicleChooser = ({vehicle, setVehicle, routes, setTitleText}) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => { onVehicleTypeSelect(VehicleTypes.TRAM); setTitleText('Choose your route:') }}
+                    onPress={() => { onVehicleTypeSelect(VehicleTypes.TRAM); setTitleText('Alege ruta:') }}
                     style={[styles.type]}
-                    onLongPress={() => { setTitleText('Tram') }}
-                    onPressOut={() => { setTitleText('Choose your vehicle:') }}
+                    onLongPress={() => { setTitleText('Tramvai') }}
+                    onPressOut={() => { setTitleText('Alege un vehicul:') }}
                     delayLongPress={200}
                 >
                     <Image
@@ -128,7 +128,7 @@ const VehicleChooser = ({vehicle, setVehicle, routes, setTitleText}) => {
                           data={routes.filter(r => r.route_type == vehicle.type)}
                           renderItem={({ item, index }) => {
                               return (
-                                  <TouchableHighlight onPress={() => { onVehicleLineSelect(item.route_id); setTitleText('Choose your vehicle size:')}}>
+                                  <TouchableHighlight onPress={() => { onVehicleLineSelect(item.route_id); setTitleText('Alege dimensiunea:')}}>
                                       <View style={styles.item}>
                                           <Text style={{padding: 20, fontSize:16}}>{item.route_long_name}</Text>
                                           <Text style={{position:'absolute', right:10, top:20, opacity: 0.4}}>{item.trips_array[0].trip_headsign} - {item.trips_array[1].trip_headsign}</Text>
@@ -148,8 +148,8 @@ const VehicleChooser = ({vehicle, setVehicle, routes, setTitleText}) => {
                 <TouchableOpacity
                     onPress={() => onVehicleSizeSelect(VehicleSizes.SMALL)}
                     style={[styles.type]}
-                    onLongPress={() => { setTitleText('Small') }}
-                    onPressOut={() => { setTitleText('Choose your vehicle size:') }}
+                    onLongPress={() => { setTitleText('Mic') }}
+                    onPressOut={() => { setTitleText('Alege dimensiunea:') }}
                     delayLongPress={200}
                 >
                     <Image
@@ -163,7 +163,7 @@ const VehicleChooser = ({vehicle, setVehicle, routes, setTitleText}) => {
                     onPress={() => onVehicleSizeSelect(VehicleSizes.NORMAL)}
                     style={[styles.type]}
                     onLongPress={() => { setTitleText('Normal') }}
-                    onPressOut={() => { setTitleText('Choose your vehicle size:') }}
+                    onPressOut={() => { setTitleText('Alege dimensiunea:') }}
                     delayLongPress={200}
                 >
                     <Image
@@ -176,8 +176,8 @@ const VehicleChooser = ({vehicle, setVehicle, routes, setTitleText}) => {
                 <TouchableOpacity
                     onPress={() => onVehicleSizeSelect(VehicleSizes.LARGE)}
                     style={[styles.type]}
-                    onLongPress={() => { setTitleText('Large') }}
-                    onPressOut={() => { setTitleText('Choose your vehicle size:') }}
+                    onLongPress={() => { setTitleText('Mare') }}
+                    onPressOut={() => { setTitleText('Alege dimensiunea:') }}
                     delayLongPress={200}
                 >
                     <Image

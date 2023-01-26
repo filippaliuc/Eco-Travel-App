@@ -171,7 +171,7 @@ const HomeScreen = () => {
         }
         else
         {
-            fetch(`https://api.opentransport.ro/gtfs/v1/route/${filter.routeFilter}?include=stop`)
+            fetch(`https://api.opentransport.ro/gtfs/v1/route/${filter.routeFilter}?include=shape`)
                 .then((response) => response.json())
                 .then((json) => setSelectedLine(json))
                 .catch((error) => console.error(error))

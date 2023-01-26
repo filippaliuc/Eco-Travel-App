@@ -55,25 +55,25 @@ export default function BreakTimePickerModal({ isVisible, onClose, onSetBreakTim
                             style={[styles.container]}
                             onPress={() => setBreakTime(5)}
                         >
-                            <Text style={[styles.text]}>5 Minutes</Text>
+                            <Text style={[styles.text]}>5 Minute</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.container]}
                             onPress={() => setBreakTime(15)}
                         >
-                            <Text style={[styles.text]}>15 Minutes</Text>
+                            <Text style={[styles.text]}>15 Minute</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.container]}
                             onPress={() => setBreakTime(30)}
                         >
-                            <Text style={[styles.text]}>30 Minutes</Text>
+                            <Text style={[styles.text]}>30 Minute</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.container]}
                             onPress={() => setShowInput(true)}
                         >
-                            <Text style={[styles.text]}>Custom Time</Text>
+                            <Text style={[styles.text]}>Alt Timp</Text>
                         </TouchableOpacity>
                     </View>
                 }

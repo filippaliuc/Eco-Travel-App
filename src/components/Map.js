@@ -54,11 +54,11 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     const getSizeText = (size) => {
 
         if(size == VehicleSizes.SMALL)
-            return 'Small';
+            return 'Mic';
         else if (size == VehicleSizes.NORMAL)
             return 'Normal';
         else if (size == VehicleSizes.LARGE)
-            return 'Large';
+            return 'Mare';
 
         return ''
     }
@@ -285,29 +285,7 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     
                             let route = routes.find(r => r.route_id == driver.line)
                             let driverRender = [];
-                            let driverTime = '';
-    
-                            driverRender.push(
-                                <MapViewDirection
-                                    origin={{
-                                        latitude: driver?.position?.latitude,
-                                        longitude: driver?.position?.longitude
-                                    }}
-                                    destination={{
-                                        latitude: currentLocation?.coords?.latitude,
-                                        longitude: currentLocation?.coords?.longitude
-                                    }}
-                                    apikey={GOOGLE_API_KEY}
-                                    strokeWidth={0}
-                                    onReady={results => {
-                                        setDriverTimes(current => ([...current, results.legs[0].duration.text]))
-                                    }}
-                                    onError={(errorMessage) => {
-                                        console.error(errorMessage);
-                                    }}
-                                />
-                            );
-    
+
                             driverRender.push(
                                 <Marker
                                     key={index}
@@ -332,16 +310,16 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                                                     backgroundColor: `#${route?.route_color}`,
                                                     color: `#${route?.route_text_color}`
                                                 }]}>{route?.route_short_name}</Text>
-                                                <Text style={{color: 'black', position:'absolute', right:8, fontSize:15}}>{driverTimes[index]}</Text>
+                                                <Text style={{color: 'black', position:'absolute', right:8, fontSize:15}}>{driver.nextStop?.estimatedTime}</Text>
                                                 {route &&
-                                                    <Text style={{fontSize:12, paddingTop:10}}>{route.trips_array[0].trip_headsign} - {route.trips_array[1].trip_headsign}</Text>
+                                                    <Text style={{fontSize:12, paddingTop:10}}>Spre: {driver.nextStop.stopName}</Text>
                                                 }
     
-                                                <Text style={{fontSize:12, paddingTop:3}}>Size: {getSizeText(driver.size)}</Text>
+                                                <Text style={{fontSize:12, paddingTop:3}}>Mărime: {getSizeText(driver.size)}</Text>
     
                                                 {
                                                     driver.break &&
-                                                    <Text style={{fontSize:12, paddingTop:3}}>On break: {driver.break.timeDuration} mins</Text>
+                                                    <Text style={{fontSize:12, paddingTop:3}}>În pauză: {driver.break.timeDuration} min</Text>
                                                 }
     
                                             </View>
@@ -360,33 +338,41 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     
                     {displayedRoutes && displayedRoutes.map((route,index) => {
                             let waypoints = [];
-    
-                            const startCoord = getStationCoord(route.trips_array[0].stops_array[0]);
-    
-                            for (let i = 0; i < route.trips_array.length; i++) {
-                                for (let j = 0; j < route.trips_array[i].stops_array.length; j++) {
-                                    if (i == 0 && j == 0)
-                                        continue;
-    
-                                    waypoints.push(
-                                        getStationCoord(route.trips_array[i].stops_array[j])
-                                    );
-                                }
-                            }
-    
+
+                            JSON.parse(route.trips_array[0].geojson).coordinates.forEach(coord => waypoints.push({latitude: parseFloat(coord[1]), longitude: parseFloat(coord[0])}))
+                            JSON.parse(route.trips_array[1].geojson).coordinates.forEach(coord => waypoints.push({latitude: parseFloat(coord[1]), longitude: parseFloat(coord[0])}))
+
+                             // const startCoord = waypoints[1];
+                            //
+                            // for (let i = 0; i < route.trips_array.length; i++) {
+                            //     for (let j = 0; j < route.trips_array[i].stops_array.length; j++) {
+                            //         if (i == 0 && j == 0)
+                            //             continue;
+                            //
+                            //         waypoints.push(
+                            //             getStationCoord(route.trips_array[i].stops_array[j])
+                            //         );
+                            //     }
+                            // }
+                            //
+
                             return (
-                                <MapViewDirection
-                                    key={index}
-                                    origin={startCoord}
-                                    destination={startCoord}
-                                    waypoints={waypoints}
-                                    splitWaypoints={true}
-                                    apikey={GOOGLE_API_KEY} // insert your API Key here
-                                    strokeWidth={4}
-                                    strokeColor={`#${route.route_color}`}
-                                    opacity={0.5}
-                                />
+                                <Polyline key={index} coordinates={waypoints} strokeWidth={4} strokeColor={`#${route.route_color}`}/>
                             )
+
+                            // return (
+                            //     <MapViewDirection
+                            //         key={index}
+                            //         origin={startCoord}
+                            //         destination={startCoord}
+                            //         waypoints={waypoints}
+                            //         splitWaypoints={true}
+                            //         apikey={GOOGLE_API_KEY} // insert your API Key here
+                            //         strokeWidth={4}
+                            //         strokeColor={`#${route.route_color}`}
+                            //         opacity={0.5}
+                            //     />
+                            // )
                         })
                     }
     
