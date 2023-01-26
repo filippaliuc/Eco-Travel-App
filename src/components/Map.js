@@ -35,10 +35,10 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
     const [linesArray,setLinesArray ] = useState([]);
 
     const edgePadding = {
-        top: 50,
-        right: 50,
-        bottom: 50,
-        left: 50
+        top: 100,
+        right: 100,
+        bottom: 100,
+        left: 100
     }
 
     const getVehicleMarkerImage = (type) => {
@@ -205,13 +205,13 @@ const Map = ({currentLocation, drivers, routes, stations, filter, displayedRoute
                 { latitude: destination.location.lat, longitude: destination.location.lng }
             ]
             
-            mapRef.current.fitToCoordinates(coords, {edgePadding})
+            mapRef.current?.fitToCoordinates(coords, {edgePadding})
         } else {
             coords = [
                 { latitude: origin.location.lat, longitude: origin.location.lng },
                 { latitude: destination.location.lat, longitude: destination.location.lng }
             ]
-            mapRef.current.fitToCoordinates(coords, {edgePadding})
+            mapRef.current?.fitToCoordinates(coords, {edgePadding})
         }
     }
 

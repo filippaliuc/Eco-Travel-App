@@ -291,9 +291,9 @@ const HomeScreen = () => {
                     if(vehicleDepartureTime != null){
                         time = moment(vehicleDepartureTime,"HH:mm").format("HH:mm")
                     } else {
-                        time = moment(time,"HH:mm").add((moment(directionSteps[i].duration.text,"mm").format("mm")),'minutes').format("HH:mm")
+                        time = moment(time,"HH:mm").add((moment(directionSteps[i-1].duration.text,"mm").format("mm")),'minutes').format("HH:mm")
                     }
-                    console.log(directionSteps[i].duration.text)
+                    console.log(`time: ${time} and duration ${directionSteps[i].duration.text}`)
                 }
                 routeDetails.push({
                     key: i,
