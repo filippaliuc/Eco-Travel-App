@@ -1,48 +1,64 @@
-import { View, Text, Image, KeyboardAvoidingView, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import {View, Text, Image, KeyboardAvoidingView, StyleSheet, Alert, Platform, StatusBar} from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Logo from '../../../assets/bus_logo.png'
 import CustomInput from "./CustomInput";
 import CustomButton from "./CustomButton";
-import { auth } from "../../../firebase"
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { auth, database } from "../../../firebase"
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
+import { useNavigation } from '@react-navigation/native';
+import { ref, onValue} from '@firebase/database';
 
 
 const LogInScreen = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
-  const handleRegister = () => {
-    createUserWithEmailAndPassword(auth, username, password)
-    .then((userCredential) => {
-      // Signed in 
-      const user = userCredential.user;
-      console.log("Registered")
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // ..
-    });
-  }
+  const [navigate, setNavigate] = useState(false)
+  const [role, setRole] = useState('')
 
+  useEffect(() => {
+    if(role === 'sofer'){
+      navigation.navigate("DriverScreen")
+      setNavigate(false)
+    } else if (role === 'student') {
+      navigation.navigate("HomeScreen")
+      setNavigate(false)
+    }
+  }, [role])
+  
+  const navigation = useNavigation();
+
+  const readUserRole = (userId) => {
+    const roleRef = ref(database, 'users/' + userId);
+    onValue(roleRef, (snapshot) => {
+      const data = snapshot.val()
+      setRole(data.role)
+    })
+  }
+  
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, username, password)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        console.log("Signed");
+        console.log(user.uid) 
+        readUserRole(user.uid)
+        setNavigate(true)
         // ...
+        
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        Alert.alert(error.message)
       });
   }
 
+  // console.log(auth.currentUser.uid)
+
   return (
     <KeyboardAvoidingView style={styles.root}>
+    <StatusBar  barStyle="light-content" translucent={true} backgroundColor={'#22802c'}/>
       <Image
         source={Logo}
         style={styles.logo}
@@ -54,7 +70,7 @@ const LogInScreen = () => {
       <CustomButton text="Log In" onPress={handleSignIn} />
       <Text style={{ color: 'white', marginTop: 25, marginBottom: 15}}>__________________    OR    __________________</Text>
       <Text style={{ color: 'white', marginBottom: 15 }}>No account yet? Make one now.</Text>
-      <CustomButton text="Create Account" onPress={handleRegister} type="Register" />
+      <CustomButton text="Create Account" onPress={() => navigation.navigate("RegisterScreen")} type="Register" />
     </KeyboardAvoidingView>
   )
 }
@@ -66,6 +82,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // padding: '5%',
     backgroundColor: '#279032',
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     flex: 1
   },
 
